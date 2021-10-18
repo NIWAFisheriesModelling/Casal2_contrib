@@ -6,16 +6,19 @@
 #' @author Craig Marsh
 #' @param model <casal2MPD, casal2TAB> object that are generated from one of the extract.mpd() and extract.tabular() functions using the Casal2 base library
 #' @param report_label <string>
-#' @param plot.it Whether to generate a default plot or return the values as a matrix.
+#' @param fisheryLabels if you only want to plot a subset of the fisheries supply a vecor of characters which corresponds to the fisheries you want to plot.
+#' @param plot.it Whether to generate a default plot or return the values as a dataframe for personal plots
 #' @param ... remaining plotting options
 #' @return generate a plot over time if plot.it = T, if plot.it = F it will return a matrix of values.
 #' @rdname plot.pressure
 #' @export plot.pressure
-#' @importFrom reshape2 melt
-#' @importFrom ggplot2 ggplot geom_point scale_colour_manual scale_fill_manual scale_size_continuous theme
+#' @importFrom dplyr filter
+#' @importFrom ggplot2 ggplot geom_line aes theme
+#' @details
+#' If you have multiple time-steps and fisheries happening at different time-steps it may be useful to use the fisheryLabels command to split out the plots.
 
 "plot.pressure" <-
-function(model, report_label = "", xlim, ylim, xlab, ylab, main, col, plot.it = T, ...) {
+function(model, report_label = "", fisheryLabels = NULL, xlim, ylim, xlab, ylab, main, col, plot.it = T, ...) {
   UseMethod("plot.pressure", model)
 }
 
@@ -24,7 +27,7 @@ function(model, report_label = "", xlim, ylim, xlab, ylab, main, col, plot.it = 
 #' @rdname plot.pressure
 #' @method plot.pressure casal2MPD
 #' @export
-"plot.pressure.casal2MPD" = function(model, report_label = "", xlim = NULL, ylim = NULL, xlab = NULL, ylab = NULL, main = NULL, col = NULL, plot.it = T, ...) {
+"plot.pressure.casal2MPD" = function(model, report_label = "", fisheryLabels = NULL, xlim = NULL, ylim = NULL, xlab = NULL, ylab = NULL, main = NULL, col = NULL, plot.it = T, ...) {
   muliple_iterations_in_a_report = FALSE
   N_runs = 1
   temp_DF = NULL
@@ -51,7 +54,7 @@ function(model, report_label = "", xlim, ylim, xlab, ylab, main, col, plot.it = 
     if (!(this_report$'1'$sub_type %in% c("mortality_instantaneous", "mortality_instantaneous_retained")))
       stop(paste0("The report label '", report_label, "' is a process that should be type 'mortality_instantaneous' or 'mortality_instantaneous_retained'."))
   }
-
+  full_df = NULL;
   if (!muliple_iterations_in_a_report) {
     ## only a single trajectory
     f_ndx = grepl(pattern = "fishing_pressure", names(this_report))
@@ -66,45 +69,34 @@ function(model, report_label = "", xlim, ylim, xlab, ylab, main, col, plot.it = 
     } else {
       Cols = col
     }
-    ## create a plot
     for (i in 1:length(fisheries)) {
-      values = this_report[[which(f_ndx)[i]]]
-      ## does the user want it plotted as percent B0
-
-      if (missing(ylim)) {
-        ymax = max(values) + quantile(values, 0.05)
-        ylim = c(0, ymax)
-      }
-      if (missing(xlim))
-        xlim = c(min(years) - 1, max(years) + 1)
-      if (missing(ylab))
-        ylab = "Fishing pressure (Exploitation Rate)"
-
-      if (missing(xlab))
-        xlab = "Years"
-      if (missing(main))
-        main = ""
-      if (plot.it == TRUE && first_fishery) {
-        plot(years, values, xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab, main = main, type = "o", col = Cols[i], ...)
-        first_fishery = FALSE
-      } else if (plot.it == TRUE && !first_fishery) {
-        lines(years, values, col = Cols[i], type = "o", ...)
-      } else {
-        temp_DF = cbind(values, temp_DF)
-      }
+      temp_df = data.frame(Year =this_report$year, Exploitation = this_report[[which(f_ndx)[i]]], Fishery = fisheries[i])
+      full_df = rbind(full_df, temp_df)
     }
-    if (plot.it == FALSE) {
-      colnames(temp_DF) = fisheries
-    } else {
-      legend('topright', legend = fisheries, col = Cols, lty = 1)
+    if(!is.null(fisheryLabels)) {
+      if(!all(fisheryLabels %in% fisheries)) {
+        stop(paste0("you supplied labesl ", paste(fisheryLabels, collapse = ", "), " but the following fisheries are available ",  paste(fisheries, collapse = ", ")))
+      }
+      full_df = full_df %>% filter(Fishery %in% fisheryLabels)
     }
+
+    ## create a plot
+    plt = ggplot(full_df, aes(x = Year, y = Exploitation, group = Fishery, col = Fishery)) +
+      geom_line(size = 2)
+    if(!is.null(main))
+      plt = plt + ggtitle(main)
+    if(!is.null(xlab))
+      plt = plt + xlab(xlab)
+    if(!is.null(ylab))
+      plt = plt + ylab(ylab)
+    return(plt)
   } else {
-    ## Multiple trajectory's
+    ## Multiple parameter inputs
     stop("This function does not take multiple inputs.")
   }
 
   if (plot.it == FALSE)
-    return(temp_DF)
+    return(full_df)
   invisible()
 }
 
@@ -114,7 +106,7 @@ function(model, report_label = "", xlim, ylim, xlab, ylab, main, col, plot.it = 
 #' @rdname plot.pressure
 #' @method plot.pressure casal2TAB
 #' @export
-"plot.pressure.casal2TAB" = function(model, report_label = "", xlim, ylim, xlab, ylab, main, col, plot.it = T, ...) {
+"plot.pressure.casal2TAB" = function(model, report_label = "", fisheryLabels = NULL, xlim, ylim, xlab, ylab, main, col, plot.it = T, ...) {
   ## check report label exists
   if (!report_label %in% names(model))
     stop(paste0("The report label '", report_label, "' was not found. The report labels available are: ", paste(names(model), collapse = ", ")))

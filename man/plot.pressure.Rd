@@ -9,6 +9,7 @@
 plot.pressure(
   model,
   report_label = "",
+  fisheryLabels = NULL,
   xlim,
   ylim,
   xlab,
@@ -22,6 +23,7 @@ plot.pressure(
 \method{plot.pressure}{casal2MPD}(
   model,
   report_label = "",
+  fisheryLabels = NULL,
   xlim = NULL,
   ylim = NULL,
   xlab = NULL,
@@ -35,6 +37,7 @@ plot.pressure(
 \method{plot.pressure}{casal2TAB}(
   model,
   report_label = "",
+  fisheryLabels = NULL,
   xlim,
   ylim,
   xlab,
@@ -50,7 +53,9 @@ plot.pressure(
 
 \item{report_label}{<string>}
 
-\item{plot.it}{Whether to generate a default plot or return the values as a matrix.}
+\item{fisheryLabels}{if you only want to plot a subset of the fisheries supply a vecor of characters which corresponds to the fisheries you want to plot.}
+
+\item{plot.it}{Whether to generate a default plot or return the values as a dataframe for personal plots}
 
 \item{...}{remaining plotting options}
 }
@@ -63,6 +68,9 @@ generate a plot over time if plot.it = T, if plot.it = F it will return a matrix
 }
 \description{
 A plotting function to plot fishing presuure (U's ) for 'casal2TAB' and 'casal2MPD' objects.
+}
+\details{
+If you have multiple time-steps and fisheries happening at different time-steps it may be useful to use the fisheryLabels command to split out the plots.
 }
 \author{
 Craig Marsh

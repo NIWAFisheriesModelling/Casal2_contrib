@@ -4,12 +4,12 @@ R package that extends the functionality of the [Casal2](https://github.com/NIWA
 
 ## Installation
 ```r
-devtools::install_github("NIWAFisheriesModelling/Casal2_contrib")
+devtools::install_github("NIWAFisheriesModelling/Casal2_contrib", build_vignettes  = TRUE))
 ```
 An issue you might find when installing this, is it has dependencies with R packages that are not on CRAN i.e. `library(Casal2)`. The package should be part of the installation or zip package that you revieved with your Casal2 executable, which can be downloaded from here. [here](https://casal2.github.io/casal/).
 
 ## Query Functionality
-Once the library is installed you can query the functionality `library(help="stockassessmenthelper")` also see the vignette with the command `browseVignettes("stockassessmenthelper")`
+Once the library is installed you can query the functionality `library(help="r4Casal2")` also see the vignette with the command `browseVignettes("r4Casal2")`
 
 
 ## Collaborations
