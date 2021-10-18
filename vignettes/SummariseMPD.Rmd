@@ -43,10 +43,27 @@ Flexibility using standard ggplot functions
 
 ```{r pressures_alt, fig.width=6, fig.height=4}
 # you can add adjust it as you please, for example if you want 3 panels for each fishery
-my_plot + facet_wrap(~Fishery)
+my_plot + 
+  facet_wrap(~Fishery) + 
+  theme(axis.text.x = element_text(angle = 90))
 ```
 
 ```{r pressures_alt_again, fig.width=6, fig.height=4}
 # Adjust ylim and add a reference limit
 my_plot + ylim(0,0.05) + geom_hline(yintercept = 0.03, linetype = "dashed")
+```
+
+
+
+## Multiple runs with -i Casal2 formulation
+```{r pressures_multi, fig.width=6, fig.height=4}
+file_name = system.file("extdata", "multi_run.out", package = "r4Casal2", mustWork = TRUE)
+mpd = extract.mpd(file = file_name)
+# Report labels
+# names(mpd) 
+# plot fishing pressures
+my_plot = r4Casal2::plot.pressure(model = mpd, report_label = "Instantaneous_Mortality")
+my_plot = my_plot + theme(axis.text.x = element_text(angle = 90))
+# this will generate a generic ggplot
+print(my_plot)
 ```
