@@ -1,15 +1,17 @@
 ---
 title: "SummariseMPD"
 output: 
-  rmarkdown::html_vignette
-  rmarkdown::github_document
+  html_vignette: default
+  github_document: default
 vignette: >
   %\VignetteIndexEntry{SummariseMPD}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 number_sections: false  
+
 ---
 
+<!-- to add above the --- above knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir  = dirname(inputFile), output_file =  '/README.md' }) -->
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -17,12 +19,14 @@ knitr::opts_chunk$set(
 )
 ```
 
+
+
 ```{r setup, warning=FALSE, echo=T, results='hide'}
+# install_github(https://github.com/NIWAFisheriesModelling/CASAL2/tree/master/R-libraries/casal2, ref = "HEAD")
 library(Casal2, warn.conflicts = F)
 library(r4Casal2, warn.conflicts = F)
 library(tidyverse)
 library(ggplot2)
-
 ```
 
 ### Introduction
