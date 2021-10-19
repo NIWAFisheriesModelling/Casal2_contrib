@@ -1,6 +1,8 @@
 ---
 title: "SummariseMPD"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette
+  rmarkdown::github_document
 vignette: >
   %\VignetteIndexEntry{SummariseMPD}
   %\VignetteEngine{knitr::rmarkdown}
