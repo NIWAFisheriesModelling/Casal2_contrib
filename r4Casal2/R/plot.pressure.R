@@ -32,9 +32,9 @@ function(model, report_label = "", fisheryLabels = NULL, plot.it = T, ...) {
   N_runs = 1
   temp_DF = NULL
 
-  ## check report label exists
-  if (!report_label %in% names(model))
-    stop(paste0("The report label '", report_label, "' was not found. The report labels available are: ", paste(names(model), collapse = ", ")))
+  check_report = check_report_label(report_label = report_label, model = model)
+  if(!check_report$check)
+    stop(check_report$msg)
 
   ## get the report out
   this_report = get(report_label, model)

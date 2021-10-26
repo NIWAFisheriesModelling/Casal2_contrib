@@ -73,3 +73,20 @@ my_plot = my_plot + theme(axis.text.x = element_text(angle = 90))
 # this will generate a generic ggplot
 print(my_plot)
 ```
+
+
+
+## Plotting Fits
+
+```{r plot_relative_index, fig.width=6, fig.height=4}
+my_plot = plot.relative_index(model = mpd, report_labels = c("autumnTANbiomass", "summerTANbiomass"), plot.it = T, plot_type = "classic")
+my_plot
+
+```
+
+## Plotting Selectivities
+```{r plot_selectivities, fig.width=6, fig.height=4}
+my_plot = r4Casal2::plot.selectivities(model = mpd, report_labels = c("summerTANSel_f", "autumnTANSel_f", "summerTANSel_m", "autumnTANSel_m"))
+my_plot
+
+```
