@@ -106,11 +106,11 @@ mpd$chatTANage$Values$mean_age = mpd$chatTANage$Values$observed * mpd$chatTANage
 
 mean_obs_bin = as.numeric(tapply(mpd$chatTANage$Values$mean_age, mpd$chatTANage$Values$year, sum))
 
-DHARMaResLF = createDHARMa(simulatedResponse = sim_vals$sim_obs$sim_chatTANage, observedResponse = as.numeric(mean_obs_bin), 
+DHARMaResAF = createDHARMa(simulatedResponse = sim_vals$sim_obs$sim_chatTANage, observedResponse = as.numeric(mean_obs_bin), 
   fittedPredictedResponse = NULL, integerResponse = F)
 
 plot(DHARMaResbio, quantreg = F)
-plot(DHARMaResLF, quantreg = F)
+plot(DHARMaResAF, quantreg = F)
 ```
 
 
@@ -126,9 +126,9 @@ bioplt = plot_predictive_dist(sim_data = sim_data,
 
 
 sim_data = sim_vals$sim_obs$sim_chatTANage
-rownames(sim_data) = mpd$chatTANage$Values$year
+rownames(sim_data) = unique(mpd$chatTANage$Values$year)
 pppAFplt = plot_predictive_dist(sim_data = sim_data, 
-          obs = data.frame(obs = mean_obs_bin, year = mpd$chatTANage$Values$year),
+          obs = data.frame(obs = mean_obs_bin, year = unique(mpd$chatTANage$Values$year)),
           lab = "Mean Age chatTANage", plot_type = "violin")
 ```
 
