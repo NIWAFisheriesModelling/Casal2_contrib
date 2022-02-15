@@ -97,13 +97,19 @@ sim_vals = read.simulated.data(dir = sim_dir)
 sim_vals$failed_files
 # 
 names(sim_vals$sim_obs)
+sim_dir_alt = system.file("extdata", "PosteriorPredictiveChecks","simulated_observations_no_param_var", package = "r4Casal2", mustWork = TRUE)
+
+sim_vals_alt = read.simulated.data(dir = sim_dir_alt)
+# check no trouble with files
+sim_vals_alt$failed_files
+# 
+names(sim_vals_alt$sim_obs)
 ```
 ## Posterior predictive checks
 Once simulated data has been read into the R environment, we want to compare where the observed values fall relative to the posterior predictive distributions. We recommend using the DHarma r package for this. To intepret P-values or understand the test-statistics that DHARMa does copy this into your R console `vignette("DHARMa", package="DHARMa")` (Assuming you have installed this package).
 
 ```{r ppp, fig.width=8, fig.height=4}
 ## Create DHARMa objects and P-values
-## for biomass
 DHARMaResbio = createDHARMa(simulatedResponse = sim_vals$sim_obs$sim_chatTANbiomass, 
   observedResponse = mpd$chatTANbiomass$Values$observed, 
   fittedPredictedResponse = mpd$chatTANbiomass$Values$expected, integerResponse = F)
@@ -119,9 +125,29 @@ DHARMaResAF = createDHARMa(simulatedResponse = sim_vals$sim_obs$sim_chatTANage, 
 plot(DHARMaResbio, quantreg = F)
 plot(DHARMaResAF, quantreg = F)
 ```
+Look at the simulated data without parameter uncertainty
 
+```{r ppp_no_param_var, fig.width=8, fig.height=4}
+## Create DHARMa objects and P-values
+DHARMaResbio = createDHARMa(simulatedResponse = sim_vals_alt$sim_obs$sim_chatTANbiomass, 
+  observedResponse = mpd$chatTANbiomass$Values$observed, 
+  fittedPredictedResponse = mpd$chatTANbiomass$Values$expected, integerResponse = F)
+## Create DHARMa objects and P-values
+## for AF 
+mpd$chatTANage$Values$mean_age = mpd$chatTANage$Values$observed * mpd$chatTANage$Values$age
 
-```{r ggplots_ppp}
+mean_obs_bin = as.numeric(tapply(mpd$chatTANage$Values$mean_age, mpd$chatTANage$Values$year, sum))
+
+DHARMaResAF = createDHARMa(simulatedResponse = sim_vals_alt$sim_obs$sim_chatTANage, observedResponse = as.numeric(mean_obs_bin), 
+  fittedPredictedResponse = NULL, integerResponse = F)
+
+plot(DHARMaResbio, quantreg = F)
+plot(DHARMaResAF, quantreg = F)
+```
+
+Some other visualizations plots
+
+```{r ggplots_ppp, fig.width=8, fig.height=6}
 ########################
 ## boxplot predictive distribution vs observation
 sim_data = sim_vals$sim_obs$sim_chatTANbiomass
@@ -139,5 +165,17 @@ pppAFplt = plot_predictive_dist(sim_data = sim_data,
           lab = "Mean Age chatTANage", plot_type = "violin")
 ```
 
+```{r compare_EM_OM, fig.width=8, fig.height=6}
+OM_file = system.file("extdata", "PosteriorPredictiveChecks","OM","OM_vary.log", package = "r4Casal2", mustWork = TRUE)
+OM_run = extract.mpd(file = OM_file)
 
+## plot SSBs
+my_plot = r4Casal2::plot.derived_quantities(model = list(OM = OM_run, EM = mpd), report_label = "biomass_t1")
+my_plot = my_plot + xlab("SSB") + ylim(0, 120000)
+```
 
+```{r compare_selectivities, fig.width=8, fig.height=6}
+## plot selectivities
+my_plot = r4Casal2::plot.selectivities(model = list(OM = OM_run, EM = mpd), report_label = "biomass_t1")
+my_plot = my_plot + xlab("SSB") + ylim(0, 120000)
+```

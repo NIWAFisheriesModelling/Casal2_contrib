@@ -135,7 +135,7 @@ alpha 1.0
 type constant
 parameter selectivity[chatTANSel].mu
 years 2000:2012
-values 8.34 * 13
+values 7.34 * 13
 */
 
 @selectivity One
