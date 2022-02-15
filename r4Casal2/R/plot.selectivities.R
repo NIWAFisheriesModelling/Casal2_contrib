@@ -27,6 +27,7 @@ function(model, report_labels, plot.it = T) {
   multiple_iterations_in_a_report <- FALSE
   N_runs <- 1
   full_DF = NULL
+
   for(i in 1:length(report_labels)) {
     ## check report exists
     check_report = check_report_label(report_label = report_labels[i], model = model)
@@ -37,13 +38,34 @@ function(model, report_labels, plot.it = T) {
       if (this_report$type != "selectivity")
         stop(paste0("The report label '", report_labels[i], "' is not a selectivity. Please check that the correct report_label was specified."))
     } else {
-      stop("This function does not take multiple inputs i.e reports generated from -i.")
+      print("multi iteration report found")
+      multiple_iterations_in_a_report <- TRUE
+      N_runs <- length(this_report)
+
+      if (this_report$'1'$type != "selectivity") {
+        stop(paste0("The report label '", report_labels[i], "' is not an selectivity Please check that the correct report label was specified."))
+      }
     }
-    temp_df = data.frame(bins = as.numeric(names(this_report$Values)), values = this_report$Values, selectivity = report_labels[i], type = this_report$sub_type)
-    full_DF = rbind(full_DF, temp_df)
+    if (!multiple_iterations_in_a_report) {
+      temp_df = data.frame(values = as.numeric(this_report$Values), bins = as.numeric(names(this_report$Values)));
+      temp_df$label = report_labels[i]
+      full_DF = rbind(full_DF, temp_df)
+    } else {
+      n_runs = length(this_report)
+      for(dash_i in 1:n_runs) {
+        temp_df = data.frame(values = as.numeric(this_report[[dash_i]]$Values), bins = as.numeric(names(this_report[[dash_i]]$Values)), par_set = dash_i);
+        temp_df$label = report_labels[i]
+        full_DF = rbind(full_DF, temp_df)
+      }
+      full_DF$par_set = factor(full_DF$par_set, ordered = T)
+    }
   }
-  plt = ggplot(full_DF, aes(x = bins, group = selectivity, col = selectivity)) +
+
+  plt = ggplot(full_DF, aes(x = bins, group = label, col = label)) +
     geom_line(aes(y = values), size = 2)
+  if(multiple_iterations_in_a_report) {
+    plt = plt + facet_grid(par_set~label)
+  }
 
   if(plot.it)
     return(plt)

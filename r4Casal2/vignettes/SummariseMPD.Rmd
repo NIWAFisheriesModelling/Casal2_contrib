@@ -59,7 +59,12 @@ my_plot +
 my_plot + ylim(0,0.05) + geom_hline(yintercept = 0.03, linetype = "dashed")
 ```
 
+## Plotting selectivities
+```{r selectivities_mpd, fig.width=6, fig.height=4}
+my_plot = r4Casal2::plot.selectivities(model = mpd, report_labels = c("summerTANSel_f", "autumnTANSel_f", "summerTANSel_m", "autumnTANSel_m"), plot.it = T)
+print(my_plot)
 
+```
 
 ## Multiple runs with -i Casal2 formulation
 ```{r pressures_multi, fig.width=6, fig.height=4}
@@ -78,14 +83,14 @@ print(my_plot)
 
 ## Plotting Fits
 
-```{r plot_relative_index, fig.width=6, fig.height=4}
+```{r plot_relative_index, fig.width=8, fig.height=6}
 my_plot = plot.relative_index(model = mpd, report_labels = c("autumnTANbiomass", "summerTANbiomass"), plot.it = T, plot_type = "classic")
 my_plot
 
 ```
 
 ## Plotting Selectivities
-```{r plot_selectivities, fig.width=6, fig.height=4}
+```{r plot_selectivities, fig.width=10, fig.height=6}
 my_plot = r4Casal2::plot.selectivities(model = mpd, report_labels = c("summerTANSel_f", "autumnTANSel_f", "summerTANSel_m", "autumnTANSel_m"))
 my_plot
 

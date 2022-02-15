@@ -9,7 +9,7 @@
 #' @param plot.it Whether to generate a default plot or return the values as a matrix.
 #' @param plot_type string
 #' @return A ggplot object
-#' @importFrom ggplot2 ggplot geom_line aes theme facet_wrap  geom_hline geom_ribbon  geom_point scale_colour_manual scale_fill_manual scale_alpha geom_errorbar
+#' @importFrom ggplot2 ggplot geom_line aes theme facet_wrap facet_grid geom_hline geom_ribbon  geom_point scale_colour_manual scale_fill_manual scale_alpha geom_errorbar
 #' @rdname plot.relative_index
 #' @export plot.relative_index
 #' @examples
@@ -77,7 +77,7 @@
       n_runs = length(this_report)
       likelihood = this_report[[1]]$likelihood
       for(dash_i in 1:n_runs) {
-        temp_df = this_report[[dash_i]];
+        temp_df = this_report[[dash_i]]$Values;
         temp_df$par_set = dash_i
         temp_df$label = report_labels[i]
         full_DF = rbind(full_DF, temp_df)
@@ -104,8 +104,12 @@
       geom_errorbar(aes(ymin=L_CI, ymax=U_CI, col = "95% CI")) +
       geom_point(aes(y = observed, col = "observed"), size = 2) +
       geom_point(aes(y = expected, col = "expected"), size = 2) +
-      scale_colour_manual(name="Key",values=col_pallete) +
-      facet_wrap(~label)
+      scale_colour_manual(name="Key",values=col_pallete)
+    if(multiple_iterations_in_a_report) {
+      plt = plt + facet_grid(par_set~label)
+    } else {
+      plt = plt + facet_grid(~label)
+    }
   } else if(plot_type == "classic_ribbon") {
     plt = ggplot(full_DF, aes(x = year, group = label, col = label)) +
       geom_ribbon(aes(ymin=L_CI, ymax=U_CI, alpha = 0.2, col = "95% CI", fill = "95% CI")) +
@@ -114,11 +118,21 @@
       scale_colour_manual(name="Key",values=col_pallete) +
       scale_fill_manual(name="Key",values=col_pallete) +
       scale_alpha(guide = 'none') +
-      facet_wrap(~label)
+      if(multiple_iterations_in_a_report) {
+        plt = plt + facet_grid(par_set~label)
+      } else {
+        plt = plt + facet_grid(~label)
+      }
+
   } else if(plot_type == "residual") {
     plt = ggplot(full_DF, aes(x = year, y = residual, group = label, col = label)) +
       geom_point(size = 2) +
       geom_hline(yintercept = 0, linetype = "dashed", size =1.2)
+    if(multiple_iterations_in_a_report) {
+      plt = plt + facet_grid(par_set~label)
+    } else {
+      plt = plt + facet_grid(~label)
+    }
   }
 
   if(plot.it)
