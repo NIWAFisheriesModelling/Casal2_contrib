@@ -25,7 +25,7 @@ This vignette demonstrates how to use Casal2s simulation mode with `r4Casal2` R 
 
 The following vignette uses the Casal2 model embedded into this R package. If you want to see where this is on you system paste the following line of code into your R console `system.file("extdata", "PosteriorPredictiveChecks", package = "r4Casal2")`
 
-![Assessment Process](Figures/assessment_process.png)
+![Assessment Process](Figures/assessment_process.png){width=50%}
 
 ```{r setup, warning=FALSE, echo=T, results='hide'}
 # install Casal2 R-library
@@ -99,7 +99,7 @@ sim_vals$failed_files
 names(sim_vals$sim_obs)
 ```
 ## Posterior predictive checks
-Once simulated data has been read into the R environment, we want to compare where the observed values fall relative to the posterior predictive distributions. We recommend using the DHarma r package for this.
+Once simulated data has been read into the R environment, we want to compare where the observed values fall relative to the posterior predictive distributions. We recommend using the DHarma r package for this. To intepret P-values or understand the test-statistics that DHARMa does copy this into your R console `vignette("DHARMa", package="DHARMa")` (Assuming you have installed this package).
 
 ```{r ppp, fig.width=8, fig.height=4}
 ## Create DHARMa objects and P-values
