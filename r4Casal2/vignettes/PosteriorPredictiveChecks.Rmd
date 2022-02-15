@@ -2,7 +2,14 @@
 title: "PosteriorPredictiveChecks"
 author: "Casal2 Dev team"
 date: "15/02/2022"
-output: html_document
+output: 
+  html_vignette: default
+  github_document: default
+vignette: >
+  %\VignetteIndexEntry{PosteriorPredictiveChecks}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+number_sections: false  
 ---
 
 ```{r, include = FALSE}
