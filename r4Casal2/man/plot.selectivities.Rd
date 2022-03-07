@@ -3,7 +3,7 @@
 \name{plot.selectivities}
 \alias{plot.selectivities}
 \alias{plot.selectivities.casal2MPD}
-\title{plot.selectivities plot selectivities from a Casal2 model.}
+\title{plot.selectivities}
 \usage{
 plot.selectivities(model, report_labels, plot.it = T)
 
@@ -18,8 +18,6 @@ plot.selectivities(model, report_labels, plot.it = T)
 }
 \value{
 generate a plot by age or length or if plot.it = F then returns a data.frame
-
-\code{NULL}
 }
 \description{
 A plotting function to plot selectivities for the 'casal2TAB' and 'casal2MPD' objects.

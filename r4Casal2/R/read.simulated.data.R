@@ -5,13 +5,14 @@
 #'
 #' @author Craig Marsh
 #' @param dir path directory to a folder containing simulated observation from a casal2 -s run
+#' @param mean_age <bool> if data is composition. True will return mean age/length for each year and data set. Otherwise False will return a list. each element will be a year which will contain a matrix of simulations x bin simulated values.
 #' @param verbose true print out statements throught function to help debug
-#' @return a list of all the simulated data sets
+#' @return a list of all the simulated data sets. in each element there is a matrix with rows = year, col = simulation reps
 #' @export
 #' @rdname read.simulated.data
 #' @export read.simulated.data
 
-read.simulated.data <- function(dir, verbose = FALSE) {
+read.simulated.data <- function(dir, verbose = FALSE, mean_age = TRUE) {
   ## add to this as the function grows
   currently_implemented_obs = c("biomass", "abundance", "process_removals_by_length", "proportions_at_length", "process_removals_by_age", "proportions_at_age")
 
@@ -55,21 +56,52 @@ read.simulated.data <- function(dir, verbose = FALSE) {
         rownames(obs_table) = NULL
         sim_obs[n][[1]] = cbind(sim_obs[n][[1]], obs_table[,1])
       } else if (this_ob$type$value %in% c("process_removals_by_length", "proportions_at_length")) {
-        props = Reduce(rbind, this_ob$Table$obs[this_ob$years$value])
-        class(props) = "numeric"
-        rownames(props) = NULL
+        comp = Reduce(rbind, this_ob$Table$obs[this_ob$years$value])
+        class(comp) = "numeric"
+        rownames(comp) = NULL
         bins = this_ob$length_bins$value
         if(!is.null(this_ob$length_plus$value) | this_ob$length_plus$value %in% c("False", "FALSE", "F", "no", "0"))
           bins = bins[-length(bins)]
-        mean_bin =  props  %*% as.numeric(bins)
-        sim_obs[n][[1]] = cbind(sim_obs[n][[1]], mean_bin)
+        if(mean_age) {
+          if(is.null(this_ob$simulated_data_sum_to_one) || this_ob$simulated_data_sum_to_one %in% c("True", "TRUE", "T", "yes", "1"))
+            stop(paste0("file ", sim_file_names[n],".",extensions[i], " doesn't sum = 1. If mean_age = T then re-simulate data with simulated_data_sum_to_one = true in Casal2 observation block"))
+          mean_bin =  comp  %*% as.numeric(bins)
+          sim_obs[n][[1]] = cbind(sim_obs[n][[1]], mean_bin)
+        } else {
+          if(i == 1) {
+            temp_list = list()
+            for(y in 1:length(this_ob$years$value)) {
+              temp_list[[this_ob$years$value[y]]] = matrix(NA, nrow = ncol(comp), ncol = length(extensions))
+            }
+            sim_obs[[n]] = temp_list
+          }
+          for(y in 1:length(this_ob$years$value)) {
+            sim_obs[n][[1]][[this_ob$years$value[y]]][,i] = comp[y,]
+          }
+        }
+
       } else if(this_ob$type$value %in% c("process_removals_by_age", "proportions_at_age")) {
-        props = Reduce(rbind, this_ob$Table$obs[this_ob$years$value])
-        class(props) = "numeric"
-        rownames(props) = NULL
+        comp = Reduce(rbind, this_ob$Table$obs[this_ob$years$value])
+        class(comp) = "numeric"
+        rownames(comp) = NULL
         bins = as.numeric(this_ob$min_age):as.numeric(this_ob$max_age$value)
-        mean_bin =  props  %*% as.numeric(bins)
-        sim_obs[n][[1]] = cbind(sim_obs[n][[1]], mean_bin)
+        if(mean_age) {
+          if(is.null(this_ob$simulated_data_sum_to_one) || this_ob$simulated_data_sum_to_one %in% c("True", "TRUE", "T", "yes", "1"))
+            stop(paste0("file ", sim_file_names[n],".",extensions[i], " doesn't sum = 1. If mean_age = T then re-simulate data with simulated_data_sum_to_one = true in Casal2 observation block"))
+          mean_bin =  comp  %*% as.numeric(bins)
+          sim_obs[n][[1]] = cbind(sim_obs[n][[1]], mean_bin)
+        } else {
+          if(i == 1) {
+            temp_list = list()
+            for(y in 1:length(this_ob$years$value)) {
+              temp_list[[this_ob$years$value[y]]] = matrix(NA, nrow = ncol(comp), ncol = length(extensions))
+            }
+            sim_obs[[n]] = temp_list
+          }
+          for(y in 1:length(this_ob$years$value)) {
+            sim_obs[n][[1]][[this_ob$years$value[y]]][,i] = comp[y,]
+          }
+        }
       }
     }
   }

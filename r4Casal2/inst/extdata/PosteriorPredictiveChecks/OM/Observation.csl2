@@ -44,6 +44,7 @@ selectivities chatTANSel
 time_step step1 
 time_step_proportion 1.0 
 type proportions_at_age 
+simulated_data_sum_to_one false
 years 1990 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 
 table obs
 1990 0.0440252 0.0566038 0.0566038 0.0691824 0.163522 0.169811 0.106918 0.100629 0.081761 0.0188679 0.0566038 0.0377358 0.0125786 0 0 0 0.0251572 
@@ -105,6 +106,7 @@ min_age 3
 mortality_instantaneous_process instant_mort 
 plus_group true 
 time_step step1 
+simulated_data_sum_to_one false
 type process_removals_by_age 
 years 1992 1994 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005 2006 2008 2009 2010 2011 
 table obs
@@ -127,6 +129,7 @@ table obs
 2010 0 0.166667 0.0833333 0.166667 0.25 0.0833333 0.166667 0 0 0 0 0 0.0833333 0 0 0 0 
 2011 0 0.111111 0 0 0.444444 0.333333 0.111111 0 0 0 0 0 0 0 0 0 0 
 end_table
+
 table error_values
 1992 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 
 1994 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
@@ -160,6 +163,7 @@ min_age 4
 mortality_instantaneous_process instant_mort 
 plus_group true 
 time_step step1 
+simulated_data_sum_to_one false
 type process_removals_by_age 
 years 1992 1995 1997 1998 2001 2004 2007 
 table obs

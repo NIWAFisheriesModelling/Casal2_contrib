@@ -1,4 +1,4 @@
-#' @title plot.selectivities plot selectivities from a Casal2 model.
+#' @title plot.selectivities
 #'
 #' @description
 #' A plotting function to plot selectivities for the 'casal2TAB' and 'casal2MPD' objects.
@@ -18,7 +18,6 @@ function(model, report_labels, plot.it = T) {
   UseMethod("plot.selectivities", model)
 }
 
-#' @return \code{NULL}
 #'
 #' @rdname plot.selectivities
 #' @method plot.selectivities casal2MPD

@@ -27,22 +27,22 @@ time_varying chat_mean_selectivity
 @report sim_chatTANage
 type simulated_observation
 observation chatTANage
-file_name simulated_observations_no_param_var/sim_chatTANage
+file_name simulated_observations/sim_chatTANage
 
 @report sim_chatTANbiomass
 type simulated_observation
 observation chatTANbiomass
-file_name simulated_observations_no_param_var/sim_chatTANbiomass
+file_name simulated_observations/sim_chatTANbiomass
 
 @report sim_chatOBSwst
 type simulated_observation
 observation chatOBSwst
-file_name simulated_observations_no_param_var/sim_chatOBSwst
+file_name simulated_observations/sim_chatOBSwst
 
 @report sim_chatOBSest
 type simulated_observation
 observation chatOBSest
-file_name simulated_observations_no_param_var/sim_chatOBSest
+file_name simulated_observations/sim_chatOBSest
 
 
 

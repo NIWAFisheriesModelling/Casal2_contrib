@@ -24,7 +24,7 @@ type estimate_value
 type time_varying
 time_varying chat_mean_selectivity
 
-/*
+
 @report sim_chatTANage
 type simulated_observation
 observation chatTANage
@@ -45,5 +45,5 @@ type simulated_observation
 observation chatOBSest
 file_name chatOBSest
 
-*/
+
 
