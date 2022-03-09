@@ -12,6 +12,7 @@ Imports: dplyr,
     ggplot2,
     tidyverse,
     reshape2,
+    DHARMa,
     MASS,
     Casal2
 RoxygenNote: 7.1.1

@@ -17,7 +17,7 @@ plot_predictive_dist <- function(sim_data, obs, lab, plot_type = "violin") {
   base_plot = ggplot(sim_data_long, aes(x = factor(year), y = CPUE)) +
     ggtitle(lab) +
     scale_color_manual(values = legend) +
-    guides(fill='none') +
+    guides(fill = "none") +
     labs(colour = "Legend", x = "Year", y = "Posterior Predictive Distribution")
   if(plot_type == "violin") {
     base_plot = base_plot + geom_violin(aes(color = "Posterior Prediction", fill = "Posterior Prediction"))

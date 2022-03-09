@@ -14,7 +14,7 @@
 
 read.simulated.data <- function(dir, verbose = FALSE, mean_age = TRUE) {
   ## add to this as the function grows
-  currently_implemented_obs = c("biomass", "abundance", "process_removals_by_length", "proportions_at_length", "process_removals_by_age", "proportions_at_age")
+  currently_implemented_obs = c("biomass", "abundance", "process_removals_by_length", "proportions_at_length", "process_removals_by_age", "proportions_at_age", "process_proportions_migrating")
 
   if(verbose)
     cat("enter: read.simulated.data\n")
@@ -39,6 +39,8 @@ read.simulated.data <- function(dir, verbose = FALSE, mean_age = TRUE) {
   ## start the main loop
   failed_files = vector()
   for(n in 1:n_obs) {
+    if(verbose)
+      cat("reading obs = ", sim_file_names[n],"\n");
     for (i in 1:length(extensions)) {
       cas_sim_obs = tryCatch(expr = extract.csl2.file(file = paste0(sim_file_names[n],".",extensions[i]), path = dir, quiet = T), error=function(e) {e}, warning=function(w) {w})
       if(inherits(cas_sim_obs, "error") | inherits(cas_sim_obs, "warning")) {
@@ -47,7 +49,8 @@ read.simulated.data <- function(dir, verbose = FALSE, mean_age = TRUE) {
       }
       this_ob = cas_sim_obs[[1]]
       if(!this_ob$type$value %in% currently_implemented_obs) {
-        stop(paste0("file ", sim_file_names[n],".",extensions[i], " is of type = ", this_ob$type$value, ". Currently only ", paste(currently_implemented_obs, collapse = ", "), " are implemented"))
+        cat(paste0("file ", sim_file_names[n],".",extensions[i], " is of type = ", this_ob$type$value, ". Currently only ", paste(currently_implemented_obs, collapse = ", "), " are implemented"))
+        break
       }
       if(this_ob$type$value %in% c("biomass", "abundance")) {
         ## relative index obs
@@ -59,6 +62,9 @@ read.simulated.data <- function(dir, verbose = FALSE, mean_age = TRUE) {
         comp = Reduce(rbind, this_ob$Table$obs[this_ob$years$value])
         class(comp) = "numeric"
         rownames(comp) = NULL
+        if(is.null(dim(comp))) {
+          comp = matrix(comp, nrow = 1)
+        }
         bins = this_ob$length_bins$value
         if(!is.null(this_ob$length_plus$value) | this_ob$length_plus$value %in% c("False", "FALSE", "F", "no", "0"))
           bins = bins[-length(bins)]
@@ -84,9 +90,12 @@ read.simulated.data <- function(dir, verbose = FALSE, mean_age = TRUE) {
         comp = Reduce(rbind, this_ob$Table$obs[this_ob$years$value])
         class(comp) = "numeric"
         rownames(comp) = NULL
+        if(is.null(dim(comp))) {
+          comp = matrix(comp, nrow = 1)
+        }
         bins = as.numeric(this_ob$min_age):as.numeric(this_ob$max_age$value)
         if(mean_age) {
-          if(is.null(this_ob$simulated_data_sum_to_one) || this_ob$simulated_data_sum_to_one %in% c("True", "TRUE", "T", "yes", "1"))
+          if(is.null(this_ob$simulated_data_sum_to_one) || this_ob$simulated_data_sum_to_one$value %in% c("True", "TRUE", "T", "yes", "1"))
             stop(paste0("file ", sim_file_names[n],".",extensions[i], " doesn't sum = 1. If mean_age = T then re-simulate data with simulated_data_sum_to_one = true in Casal2 observation block"))
           mean_bin =  comp  %*% as.numeric(bins)
           sim_obs[n][[1]] = cbind(sim_obs[n][[1]], mean_bin)
@@ -101,6 +110,26 @@ read.simulated.data <- function(dir, verbose = FALSE, mean_age = TRUE) {
           for(y in 1:length(this_ob$years$value)) {
             sim_obs[n][[1]][[this_ob$years$value[y]]][,i] = comp[y,]
           }
+        }
+      } else if(this_ob$type$value %in% c("process_proportions_migrating")) {
+        sim_mat = Reduce(rbind, this_ob$Table$obs[this_ob$years$value])
+        class(sim_mat) = "numeric"
+        rownames(sim_mat) = NULL
+        bins = as.numeric(this_ob$min_age$value):as.numeric(this_ob$max_age$value)
+        if(is.null(dim(sim_mat))) {
+          sim_mat = matrix(sim_mat, nrow = 1)
+        }
+        colnames(sim_mat) = bins
+        rownames(sim_mat) = this_ob$years$value
+        if(i == 1) {
+          temp_list = list()
+          for(y in 1:length(this_ob$years$value)) {
+            temp_list[[this_ob$years$value[y]]] = matrix(NA, nrow = ncol(sim_mat), ncol = length(extensions))
+          }
+          sim_obs[[n]] = temp_list
+        }
+        for(y in 1:length(this_ob$years$value)) {
+          sim_obs[n][[1]][[this_ob$years$value[y]]][,i] = sim_mat[y,]
         }
       }
     }

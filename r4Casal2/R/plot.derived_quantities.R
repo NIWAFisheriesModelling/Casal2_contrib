@@ -32,8 +32,57 @@
 #' @method plot.derived_quantities casal2MPD
 #' @export
 "plot.derived_quantities.casal2MPD" <- function(model, report_label = "", plot_type = "classic", plot.it = T) {
-  stop("function not coded yet")
+  full_DF = NULL
+  multiple_iterations_in_a_report = FALSE
+  this_report = get(report_label, model)
+  if (any(names(this_report) == "type")) {
+    if (this_report$type != "derived_quantity") {
+      stop(paste0("The report label '", report_label, "' is not an derived_quantity Please check that the correct report label was specified."))
+    }
+  } else {
+    print("multi iteration report found")
+    multiple_iterations_in_a_report <- TRUE
+    if (this_report$'1'$type != "derived_quantity") {
+      stop(paste0("The report label '", report_label, "' is not an derived_quantity Please check that the correct report label was specified."))
+    }
+  }
 
+  if (!multiple_iterations_in_a_report) {
+    DQ_types = names(this_report)[!names(this_report) %in% "type"]
+    dq_df = NULL
+    for(dq_iter in 1:length(DQ_types)) {
+      temp_df = data.frame(par_set = 1, years = names(this_report[[DQ_types[dq_iter]]]$values), values = this_report[[DQ_types[dq_iter]]]$values, label = DQ_types[dq_iter]);
+      dq_df = rbind(dq_df, temp_df)
+    }
+    full_DF = rbind(full_DF, dq_df)
+  } else {
+    n_runs = length(this_report)
+    for(dash_i in 1:n_runs) {
+      ##
+      DQ_types = names(this_report[[dash_i]])[!names(this_report[[dash_i]]) %in% "type"]
+      dq_df = NULL
+      for(dq_iter in 1:length(DQ_types)) {
+        temp_df = data.frame(par_set = dash_i, years = names(this_report[[dash_i]][[DQ_types[dq_iter]]]$values), values = this_report[[dash_i]][[DQ_types[dq_iter]]]$values, label = DQ_types[dq_iter]);
+        dq_df = rbind(dq_df, temp_df)
+      }
+      full_DF = rbind(full_DF, dq_df)
+    }
+    full_DF$par_set = factor(full_DF$par_set, ordered = T)
+  }
+  full_DF$years = as.numeric(full_DF$years)
+  plt = NULL
+  if(plot_type == "classic") {
+    plt = ggplot(full_DF, aes(x = years, y = values, col = label)) +
+      geom_line(size = 2) +
+      theme(axis.text.x = element_text(angle = 90))
+  } else {
+    stop("unknown 'plot_type'")
+  }
+  if(plot.it)
+    return(plt)
+
+  if (!plot.it)
+    return(full_DF)
 }
 
 
