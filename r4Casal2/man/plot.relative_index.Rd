@@ -47,7 +47,7 @@ A ggplot object
 A plotting function for Casal2 fits to abundance or biomass observations
 }
 \examples{
-\donttest{
+\dontrun{
 library(casal2)
 # plotting Standard Output
 data <- extract.mpd(file = system.file("extdata", "estimate.out", package="casal2"))

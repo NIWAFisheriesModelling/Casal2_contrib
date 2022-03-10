@@ -12,6 +12,7 @@
 #' @export summarise_model
 summarise_model <- function(config_dir = "", config_file = "config.csl2", quiet = T, fileEncoding = "") {
   #config_dir = system.file("extdata", "PosteriorPredictiveChecks", package = "r4Casal2", mustWork = TRUE)
+  #config_dir = "C:/Users/marshc/OneDrive - NIWA/testingCtoC2/csls/full2013SNA1.datagrowth/Casal2"
   file = scan(file = file.path(config_dir, config_file), what = "", sep = "\n", quiet = T)
   ## deal with comments
   file <- file[substring(file, 1, 1) != "#"]
@@ -47,13 +48,18 @@ summarise_model <- function(config_dir = "", config_file = "config.csl2", quiet 
   time_steps_list = list()
   categories_list = list()
   age_length_list = list()
+  length_weight_list = list();
   category_labels = NULL
   observation_labels = NULL
   category_age_lengths = NULL;
+  category_format = NULL
   model_years = NULL
+  model_length_bins = NULL
   ages = NULL
   time_steps = NULL
   for(i in 1:length(file)) {
+    if(!file.exists(file.path(config_dir, file[i])))
+      cat("couldn't find file = ", file.path(config_dir, file[i]))
     this_file = tryCatch(extract.csl2.file(path = config_dir, file = file[i], quiet = quiet), error=function(e) {e}, warning=function(w) {w})
     if(inherits(this_file, "error") | inherits(this_file, "warning")) {
       cat("failed to readin the following file ", file[i], " so skipping it.\n\nthe error\n",this_file$message,"\n")
@@ -68,17 +74,29 @@ summarise_model <- function(config_dir = "", config_file = "config.csl2", quiet 
         model_years = as.numeric(this_file[[j]]$start_year$value):as.numeric(this_file[[j]]$final_year$value)
         ages = as.numeric(this_file[[j]]$min_age$value):as.numeric(this_file[[j]]$max_age$value)
         time_steps = this_file[[j]]$time_steps$value
+        if(!is.null(this_file[[j]]$length_bins)) {
+          for(i in k:length(this_file[[j]]$length_bins$value))
+            model_length_bins = c(model_length_bins, expand_shorthand_syntax(syntax = this_file[[j]]$length_bins$value[k]))
+        }
+
       } else if(tolower(blocks[j]) == "time_step") {
         time_steps_list[[labels[j]]] = this_file[[j]]$processes$value
       } else if(tolower(blocks[j]) == "categories") {
         categories_list[[labels[j]]] = this_file[[j]]
-        category_labels = expand_category_block(this_file[[j]]$names$value)
-        ## TODO catch short hand syntax here.
-        category_age_lengths = this_file[[j]]$age_lengths$value
+        for(k in 1:length(this_file[[j]]$names$value)) {
+          category_labels = c(category_labels, expand_category_block(categories = this_file[[j]]$names$value[k]))
+        }
+        for(k in 1:length(this_file[[j]]$age_lengths$value)) {
+          category_age_lengths = c(category_age_lengths, expand_shorthand_syntax(syntax = this_file[[j]]$age_lengths$value[k]))
+        }
+        if(!is.null(this_file[[j]]$format))
+          category_format = this_file[[j]]$format$value
       } else if(tolower(blocks[j]) == "age_length") {
         age_length_list[[labels[j]]] = this_file[[j]]
       } else if(tolower(blocks[j]) == "process") {
         process_blocks[[labels[j]]] = this_file[[j]]
+      } else if(tolower(blocks[j]) == "length_weight") {
+        length_weight_list[[labels[j]]] = this_file[[j]]
       } else if(tolower(blocks[j]) == "estimate") {
         estimate_blocks[[labels[j]]] = this_file[[j]]
       } else if(tolower(blocks[j]) == "observation") {
@@ -88,7 +106,84 @@ summarise_model <- function(config_dir = "", config_file = "config.csl2", quiet 
     }
   }
   ## now summarise...
+  ## categories
+  category_df = full_category_df = NULL
+  age_length_time_step_growth = NULL
+  for(i in 1:length(category_labels)) {
+    ## get process type
+    this_category = categories_list[[category_labels[i]]]
+    ## get age-length label type
+    this_age_length = age_length_list[[category_age_lengths[i]]]
+    ## get length-weight label type
+    this_length_weight = length_weight_list[[this_age_length$length_weight$value]]
+    distribution = "normal" # default
+    if(!is.null(this_age_length$distribution))
+      distribution = this_age_length$distribution
+    this_cat_df = data.frame("Category" = category_labels[i], "AgeLength" = category_age_lengths[i], "LengthWeight" = this_age_length$length_weight$value, "Distribution" = distribution)
+
+    this_cat_full_df = data.frame("Category" = category_labels[i], "AgeLength" = paste0(category_age_lengths[i], " (",this_age_length$type$value, ")"),
+                                  "LengthWeight" = paste0(this_age_length$length_weight$value, " (",this_length_weight$type$value, ")"), "Distribution" = distribution)
+
+    category_df = rbind(category_df, this_cat_df)
+    full_category_df = rbind(full_category_df, this_cat_full_df)
+    if(is.null(age_length_time_step_growth))
+      age_length_time_step_growth = rbind(age_length_time_step_growth, data.frame(AgeLength = category_age_lengths[i], time_step_proportions = this_age_length$time_step_proportions$value))
+    if(!category_age_lengths[i] %in% age_length_time_step_growth$AgeLength)
+      age_length_time_step_growth = rbind(age_length_time_step_growth, data.frame(AgeLength = category_age_lengths[i], time_step_proportions = this_age_length$time_step_proportions$value))
+  }
+  ## Observations
+  obs_year_matrix = matrix(NA, nrow = length(observation_labels), ncol = length(model_years), dimnames = list(observation_labels, model_years))
+  for(i in 1:length(observation_labels)) {
+    this_obs = observation_blocks[[observation_labels[i]]]
+    years = NULL
+    for(y in 1:length(this_obs$years$value)) {
+      years = c(years, expand_shorthand_syntax(this_obs$years$value[y]))
+    }
+    obs_year_matrix[i ,model_years %in% years] = 1
+  }
+  obs_year_melt = melt(obs_year_matrix)
+  colnames(obs_year_melt) = c("observation", "year", "active")
+
+  ## Catch and M
+  M_by_category = NULL
+  M_time_steps = NULL
+  catch_df = NULL
+  method_df = NULL
+  for(i in 1:length(process_blocks)) {
+    this_process = process_blocks[[i]]
+    if(this_process$type$value == "mortality_instantaneous") {
+      m = expand_shorthand_syntax(this_process$m$value)
+      categories = NULL
+      for(j in 1:length(this_process$categories$value))
+        categories = c(categories, expand_category_shorthand(shorthand_categories = this_process$categories$value[j], reference_categories=category_labels, category_format = category_format))
+      selectivty = NULL
+      for(j in 1:length(this_process$relative_m_by_age$value))
+        selectivty = c(selectivty, expand_shorthand_syntax(this_process$relative_m_by_age$value[j]))
+      M_by_category = rbind(data.frame(process = names(process_blocks)[i], category = categories, M = m, relative_M = selectivty))
+
+      M_time_steps = rbind(M_time_steps, data.frame(process = names(process_blocks)[i], time_step_proportions = this_process$time_step_proportions$value))
+      this_catch = Reduce(cbind, this_process$Table$catches)
+      class(this_catch) = "numeric"
+      colnames(this_catch) = names(this_process$Table$catches)
+      this_catch = as.data.frame(this_catch)
+      this_catch$process = names(process_blocks)[i]
+      catch_df = rbind(catch_df, this_catch)
+
+      this_method = Reduce(cbind, this_process$Table$method)
+      colnames(this_method) = names(this_process$Table$method)
+      this_method = as.data.frame(this_method, stringsAsFactors = F)
+      for(i in 1:nrow(this_method))
+        this_method$category[i] = paste(expand_category_shorthand(this_method$category[i] , category_labels, category_format = category_format), collapse = ",")
+
+      this_method$process = names(process_blocks)[i]
+      method_df = rbind(method_df, this_method)
+    } else if(this_process$type$value == "mortality_instantaneous_retained") {
+
+    }
+  }
+
   ## these are converted to dfs for easy conversion to tables.
+  ## Do this last so we can bring growth props and M props
   time_step_df = NULL
   time_step_df_just_lab = NULL
   for(i in 1:length(time_steps)) {
@@ -104,32 +199,15 @@ summarise_model <- function(config_dir = "", config_file = "config.csl2", quiet 
     time_step_df = rbind(time_step_df, this_step)
     time_step_df_just_lab = rbind(time_step_df_just_lab, data.frame(time_step = time_steps[i], processes = paste(proceses, collapse = ", ")))
   }
-  ## categories
-  category_df = NULL
-  for(i in 1:length(category_labels)) {
-    ## get process type
-    this_category = categories_list[[category_labels[i]]]
-    ## get age-length label type
-    ## get length-weight label type
+  age_length_labs = unique(age_length_time_step_growth$AgeLength)
+  for(i in 1:length(age_length_labs)) {
+    this_growth = age_length_time_step_growth[which(age_length_time_step_growth$AgeLength == age_length_labs[i]),]
+    time_step_df = cbind(time_step_df, this_growth$time_step_proportions)
+    time_step_df_just_lab = cbind(time_step_df_just_lab, this_growth$time_step_proportions)
   }
-  ## Observations
-  obs_year_matrix = matrix(NA, nrow = length(observation_labels), ncol = length(model_years), dimnames = list(observation_labels, model_years))
-  for(i in 1:length(observation_labels)) {
-    this_obs = observation_blocks[[observation_labels[i]]]
-    years = as.numeric(this_obs$years$value)
-    obs_year_matrix[,model_years %in% years] = 1
-  }
-  ## Catch and M
-  for(i in 1:length(process_blocks)) {
-    this_process = process_blocks[[i]]
-    if(this_process$type$value == "mortality_instantaneous") {
+  age_length_labs = paste0(age_length_labs, " (assumed growth)")
+  colnames(time_step_df_just_lab) = c("Time-step", "Processes", age_length_labs)
+  colnames(time_step_df) = c("Time-step", "Processes (type)", age_length_labs)
 
-    } else if(this_process$type$value == "mortality_instantaneous_retained") {
-
-    }
-  }
-
-
-
-  return(list(category_df = category_df, time_step_df = time_step_df, obs_year_matrix = obs_year_matrix, model_years = model_years))
+  return(list(category_df = category_df, full_category_df = full_category_df, method_df = method_df, catch_df = catch_df, time_step_df = time_step_df, time_step_df_just_lab = time_step_df_just_lab, obs_year_df = obs_year_melt, model_years = model_years, model_ages = ages, model_length_bins = model_length_bins))
 }

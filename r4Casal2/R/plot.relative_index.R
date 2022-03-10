@@ -13,7 +13,7 @@
 #' @rdname plot.relative_index
 #' @export plot.relative_index
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' library(casal2)
 #' # plotting Standard Output
 #' data <- extract.mpd(file = system.file("extdata", "estimate.out", package="casal2"))

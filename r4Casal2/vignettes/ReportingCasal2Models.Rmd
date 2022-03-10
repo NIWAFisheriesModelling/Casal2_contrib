@@ -1,0 +1,65 @@
+---
+title: "ReportingCasal2Models"
+output: 
+  html_vignette: default
+  github_document: default
+vignette: >
+  %\VignetteIndexEntry{ReportingCasal2Models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+number_sections: false  
+
+---
+
+<!-- to add above the --- above knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir  = dirname(inputFile), output_file =  '/README.md' }) -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+
+```{r setup, warning=FALSE, echo=T, results='hide'}
+# install_github(https://github.com/NIWAFisheriesModelling/CASAL2/tree/master/R-libraries/casal2, ref = "HEAD")
+library(Casal2, warn.conflicts = F)
+library(r4Casal2, warn.conflicts = F)
+library(tidyverse)
+library(reshape2)
+library(kableExtra)
+```
+
+### Introduction
+Functions to help validate and present Casal2 models
+
+
+```{r summarise}
+config_dir = system.file("extdata", "TestModelComplex", package = "r4Casal2", mustWork = TRUE)
+## This function is the key function will read a Casal config file and report useful information
+## should be used when describing model structures and assumptions
+## as well as validation.
+summary = summarise_model(config_dir, config_file = "config.csl2", quiet = T)
+```
+
+
+```{r annual_cycle}
+knitr::kable(x = summary$time_step_df, caption = "Annual cycle")
+```
+
+
+```{r categories}
+knitr::kable(x = summary$category_df, caption = "Category information")
+```
+
+
+
+```{r catches, fig.width=6, fig.height=4}
+catches_melted = melt(summary$catch_df, id.vars = c("process", "year"))
+ggplot(catches_melted, aes(x = year, y = value, col = variable)) +
+  geom_line(size = 1.5) +
+  labs(x = "Year", y = "Catch (t)", col = "Fishery")
+```
+
+
+
