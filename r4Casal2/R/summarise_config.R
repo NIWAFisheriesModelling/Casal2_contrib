@@ -84,7 +84,7 @@ summarise_config <- function(config_dir = "", config_file = "config.csl2", quiet
         ages = as.numeric(this_file[[j]]$min_age$value):as.numeric(this_file[[j]]$max_age$value)
         time_steps = this_file[[j]]$time_steps$value
         if(!is.null(this_file[[j]]$length_bins)) {
-          for(i in k:length(this_file[[j]]$length_bins$value))
+          for(k in 1:length(this_file[[j]]$length_bins$value))
             model_length_bins = c(model_length_bins, expand_shorthand_syntax(syntax = this_file[[j]]$length_bins$value[k]))
         }
 
