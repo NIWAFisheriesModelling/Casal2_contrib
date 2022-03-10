@@ -1,8 +1,8 @@
 ---
-title: "ExampleUseage"
+title: "CompareMultipleMPDs"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{ExampleUseage}
+  %\VignetteIndexEntry{CompareMultipleMPDs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 number_sections: false  

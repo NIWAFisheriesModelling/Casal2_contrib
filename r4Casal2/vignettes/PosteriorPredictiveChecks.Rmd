@@ -104,7 +104,7 @@ if(FALSE)
 ```
 
 ## Summarising simulated data in R
-Assuming you have saved all the simulated observations as seperate files in a standalone folder.
+Assuming you have saved all the simulated observations as separate files in a standalone folder.
 
 
 ```{r read_simulations}

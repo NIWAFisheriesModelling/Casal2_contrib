@@ -1,10 +1,10 @@
 ---
-title: "CompareMultipleMPDs"
+title: "SummariseMPD"
 output: 
   html_vignette: default
   github_document: default
 vignette: >
-  %\VignetteIndexEntry{CompareMultipleMPDs}
+  %\VignetteIndexEntry{SummariseMPD}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 number_sections: false  

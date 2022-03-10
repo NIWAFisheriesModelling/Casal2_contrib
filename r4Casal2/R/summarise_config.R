@@ -1,4 +1,4 @@
-#' @title summarise_model
+#' @title summarise_config
 #' @description
 #' utility function that reads in config.csl2 file and summarises a model in table formats and plots
 #'
@@ -7,12 +7,21 @@
 #' @param config_file the starting config that starts a Casal2 model default config.csl2, but can be overridden with casal2 -c my_config. in the later case it should be the my_config name
 #' @importFrom Casal2 extract.csl2.file
 #' @return
-#' @export
-#' @rdname summarise_model
-#' @export summarise_model
-summarise_model <- function(config_dir = "", config_file = "config.csl2", quiet = T, fileEncoding = "") {
-  #config_dir = system.file("extdata", "PosteriorPredictiveChecks", package = "r4Casal2", mustWork = TRUE)
-  #config_dir = "C:/Users/marshc/OneDrive - NIWA/testingCtoC2/csls/full2013SNA1.datagrowth/Casal2"
+#' @examples
+#' \dontrun{
+#' library(r4Casal2)
+#' library(ggplot2)
+#' config_dir = system.file("extdata", "TestModelComplex", package = "r4Casal2", mustWork = TRUE)
+#' summary = summarise_config(config_dir, config_file = "config.csl2", quiet = T)
+#' names(summary)
+#' # visualise observations in model
+#' ggplot(summary$obs_year_df, aes(x = year, y = observation, col = observation, size = active)) +
+#' geom_point() +
+#' guides(colour = "none", size = "none")
+#' }
+#' @rdname summarise_config
+#' @export summarise_config
+summarise_config <- function(config_dir = "", config_file = "config.csl2", quiet = T, fileEncoding = "") {
   file = scan(file = file.path(config_dir, config_file), what = "", sep = "\n", quiet = T)
   ## deal with comments
   file <- file[substring(file, 1, 1) != "#"]
@@ -209,5 +218,10 @@ summarise_model <- function(config_dir = "", config_file = "config.csl2", quiet 
   colnames(time_step_df_just_lab) = c("Time-step", "Processes", age_length_labs)
   colnames(time_step_df) = c("Time-step", "Processes (type)", age_length_labs)
 
-  return(list(category_df = category_df, full_category_df = full_category_df, method_df = method_df, catch_df = catch_df, time_step_df = time_step_df, time_step_df_just_lab = time_step_df_just_lab, obs_year_df = obs_year_melt, model_years = model_years, model_ages = ages, model_length_bins = model_length_bins))
+  ## TODO
+  ## Summarise @estimate blocks
+  ## priors type, bounds, starting values
+
+
+  return(list(category_df = category_df, full_category_df = full_category_df, method_df = method_df, catch_df = catch_df, time_step_df = time_step_df, time_step_df_just_lab = time_step_df_just_lab, obs_year_df = obs_year_melt, model_years = model_years, model_ages = ages, model_length_bins = model_length_bins, M_by_category = M_by_category))
 }
