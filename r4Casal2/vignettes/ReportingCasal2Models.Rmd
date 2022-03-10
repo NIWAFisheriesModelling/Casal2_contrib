@@ -40,6 +40,7 @@ config_dir = system.file("extdata", "TestModelComplex", package = "r4Casal2", mu
 ## should be used when describing model structures and assumptions
 ## as well as validation.
 summary = summarise_model(config_dir, config_file = "config.csl2", quiet = T)
+names(summary)
 ```
 
 
@@ -61,5 +62,9 @@ ggplot(catches_melted, aes(x = year, y = value, col = variable)) +
   labs(x = "Year", y = "Catch (t)", col = "Fishery")
 ```
 
-
+```{r observations, fig.width=6, fig.height=4}
+ggplot(summary$obs_year_df, aes(x = year, y = observation, col = observation, size = active)) +
+  geom_point() +
+  guides(colour = "none", size = "none")
+```
 
