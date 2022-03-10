@@ -33,7 +33,9 @@ The following vignette uses the Casal2 model embedded into this R package. If yo
 # install_github(https://github.com/NIWAFisheriesModelling/CASAL2/tree/master/R-libraries/casal2, ref = "HEAD")
 library(Casal2, warn.conflicts = F)
 library(r4Casal2, warn.conflicts = F)
-library(tidyverse)
+library(reshape2)
+library(dplyr)
+library(ggplot2)
 library(DHARMa)
 ```
  
@@ -110,15 +112,22 @@ Assuming you have saved all the simulated observations as separate files in a st
 ```{r read_simulations}
 sim_dir = system.file("extdata", "PosteriorPredictiveChecks","simulated_observations", package = "r4Casal2", mustWork = TRUE)
 
-sim_vals = read.simulated.data(dir = sim_dir, mean_age = F)
+## created from running simulations and reading them in with
+# sim_vals = read.simulated.data(dir = sim_dir, mean_age = F)
+# saveRDS(sim_vals, file.path("sim_vals.RDS"))
+sim_vals = readRDS(file.path(sim_dir, "sim_vals.RDS"))
+
 # check no trouble with files
 sim_vals$failed_files
 # 
 names(sim_vals$sim_obs)
 sim_dir_alt = system.file("extdata", "PosteriorPredictiveChecks","simulated_observations_no_param_var", package = "r4Casal2", mustWork = TRUE)
 
-sim_vals_alt = read.simulated.data(dir = sim_dir_alt, mean_age = F)
-# check no trouble with files
+#sim_vals_alt = read.simulated.data(dir = sim_dir_alt, mean_age = F)
+#saveRDS(sim_vals_alt, file.path("sim_vals_alt.RDS"))
+sim_vals_alt = readRDS(file.path(sim_dir_alt, "sim_vals_alt.RDS"))
+
+# check no trouble with reading in files
 sim_vals_alt$failed_files
 # 
 names(sim_vals_alt$sim_obs)
@@ -138,12 +147,49 @@ year = 1999
 obs = mpd$chatTANage$Values$numbers_at_age[mpd$chatTANage$Values$year == year]
 DHARMaResAF = createDHARMa(simulatedResponse = sim_vals$sim_obs$sim_chatTANage[[as.character(year)]], observedResponse = obs, 
   fittedPredictedResponse = NULL, integerResponse = F)
-
+## use DHARMa functions
 plot(DHARMaResbio, quantreg = F)
 plot(DHARMaResAF, quantreg = F)
 ```
-Look at the simulated data without parameter uncertainty
 
+Examples of custom plots
+
+```{r custom_figures, fig.width=8, fig.height=6}
+sim_chatTANbiomass = sim_vals$sim_obs$sim_chatTANbiomass
+rownames(sim_chatTANbiomass) = mpd$chatTANbiomass$Values$year
+DHARMaResbio_quant_resids = createDHARMa(simulatedResponse = sim_chatTANbiomass, 
+                            observedResponse = mpd$chatTANbiomass$Values$observed, 
+                            fittedPredictedResponse = mpd$chatTANbiomass$Values$expected, integerResponse = F)
+## convert from uniform variable -> standard normal
+norm_quant_resids = qnorm(DHARMaResbio_quant_resids$scaledResiduals)
+# formal tests
+#dispersion_test = testDispersion(DHARMaResbio_quant_resids)
+#zero_inflat_test = testZeroInflation(DHARMaResbio_quant_resids)
+temporal_correlation = testTemporalAutocorrelation(simulationOutput = DHARMaResbio_quant_resids, time = mpd$chatTANbiomass$Values$year, plot = F) ## HO: rho = 0, HA: rho != 0
+temporal_correlation
+## plot posterior predictive checks
+bioplt = plot_predictive_dist(sim_data = sim_chatTANbiomass, 
+                              obs = data.frame(obs = mpd$chatTANbiomass$Values$observed, 
+                                               year = mpd$chatTANbiomass$Values$year), lab = "", plot_type = "violin")
+bioplt= bioplt + theme(axis.text.x = element_text(angle = 90)) +
+  ggtitle("MPD Predictive distributions")
+## qq plot for simulated quantile residuals.
+norm_resid = ggplot(data.frame(resids = norm_quant_resids), aes(sample = resids)) +
+  stat_qq(size = 3) +
+  stat_qq_line(col = "steelblue", size = 1.5, linetype = "dashed") +
+  labs(x = "Theoretical", y = "Sample")
+## Plot normalised residuals generated from Casal2
+normalised_resids = ggplot(mpd$chatTANbiomass$Values, aes(sample = normalised_residuals)) +
+  stat_qq(size = 3) +
+  stat_qq_line(col = "steelblue", size = 1.5, linetype = "dashed") +
+  labs(x = "Theoretical", y = "Sample")
+## Plot fits obs
+fits = r4Casal2::plot.relative_index(model = mpd, report_label = "chatTANbiomass") + ggtitle("")
+##
+fits
+```
+
+Look at Predictive checks when generated with variability in parameter estimates as well.
 ```{r ppp_no_param_var, fig.width=8, fig.height=4}
 ## Create DHARMa objects and P-values
 DHARMaResbio = createDHARMa(simulatedResponse = sim_vals_alt$sim_obs$sim_chatTANbiomass, 

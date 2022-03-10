@@ -18,11 +18,12 @@ knitr::opts_chunk$set(
 ```{r setup, warning=FALSE, echo=T, results='hide'}
 library(Casal2, warn.conflicts = F)
 library(r4Casal2, warn.conflicts = F)
-library(tidyverse)
+library(reshape2)
+library(dplyr)
 library(ggplot2)
 
 ```
 
 ### Introduction
-A vignette to show users functions in this package and in the `Casal2` base package for comparing model runs.
+A vignette to show users functions in `r4Casal2` and in the `Casal2` base package for comparing alternative Casal2 model structures.
 

@@ -25,7 +25,8 @@ knitr::opts_chunk$set(
 # install_github(https://github.com/NIWAFisheriesModelling/CASAL2/tree/master/R-libraries/casal2, ref = "HEAD")
 library(Casal2, warn.conflicts = F)
 library(r4Casal2, warn.conflicts = F)
-library(tidyverse)
+library(ggplot2)
+library(dplyr)
 library(reshape2)
 library(kableExtra)
 ```
@@ -50,7 +51,7 @@ knitr::kable(x = summary$time_step_df, caption = "Annual cycle")
 
 
 ```{r categories}
-knitr::kable(x = summary$category_df, caption = "Category information")
+knitr::kable(x = summary$full_category_df, caption = "Category information")
 ```
 
 
