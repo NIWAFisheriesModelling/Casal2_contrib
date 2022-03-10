@@ -1,6 +1,10 @@
 # r4Casal2
-An R package that extends the functionality of the [Casal2](https://github.com/NIWAFisheriesModelling/CASAL2) R package to aid in visualising and model interrogation.
+An R package that extends the functionality of the [Casal2](https://github.com/NIWAFisheriesModelling/CASAL2) R package to aid in visualising and model interrogation. Or you can install it 
+```r
+install_github(https://github.com/NIWAFisheriesModelling/CASAL2/tree/master/R-libraries/casal2, ref = "HEAD")
+```
 
+This is a recently built package so may require a few package updates if you don't update packages often.
 
 ## Installation
 ```r
