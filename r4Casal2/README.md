@@ -11,7 +11,7 @@ install_github(https://github.com/NIWAFisheriesModelling/CASAL2/tree/master/R-li
 install.packages(c("reshape2", "dplyr", "ggplot2", "mvtnorm", "DHARMa","gridExtra","MASS", "knitr", "rmarkdown", "fastmap"))
 ```
 
-Once successfully installed the above run the following code.
+Once successfully installed the above package run the following code. ***Tips*** you will get prompted to update packages, I usually enter the value `2` which will update CRAN pacakages. This seems to work more often than not.
 ```r
 devtools::install_github("NIWAFisheriesModelling/Casal2_contrib/r4Casal2", build_vignettes  = TRUE)
 ```
