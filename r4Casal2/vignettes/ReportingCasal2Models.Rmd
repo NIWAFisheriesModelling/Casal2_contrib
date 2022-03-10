@@ -2,7 +2,6 @@
 title: "ReportingCasal2Models"
 output: 
   html_vignette: default
-  github_document: default
 vignette: >
   %\VignetteIndexEntry{ReportingCasal2Models}
   %\VignetteEngine{knitr::rmarkdown}

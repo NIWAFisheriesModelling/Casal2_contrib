@@ -1,6 +1,7 @@
 ---
 title: "CompareMultipleMPDs"
-output: rmarkdown::html_vignette
+output: 
+  html_vignette: default
 vignette: >
   %\VignetteIndexEntry{CompareMultipleMPDs}
   %\VignetteEngine{knitr::rmarkdown}

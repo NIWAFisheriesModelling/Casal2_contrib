@@ -2,13 +2,11 @@
 title: "SummariseMPD"
 output: 
   html_vignette: default
-  github_document: default
 vignette: >
   %\VignetteIndexEntry{SummariseMPD}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 number_sections: false  
-
 ---
 
 <!-- to add above the --- above knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_dir  = dirname(inputFile), output_file =  '/README.md' }) -->

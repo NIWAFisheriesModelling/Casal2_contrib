@@ -8,7 +8,7 @@ install_github(https://github.com/NIWAFisheriesModelling/CASAL2/tree/master/R-li
 ## Installation `r4Casal2`
 `r4Casal2` is a recent package so may require package updates if you don't update your `R` environment. It is recommended to successfully install the following packages before installing `r4Casal2`
 ```r
-install.packages(c("reshape2", "dplyr", "ggplot2", "mvtnorm", "DHARMa","gridExtra","MASS"))
+install.packages(c("reshape2", "dplyr", "ggplot2", "mvtnorm", "DHARMa","gridExtra","MASS", "knitr", "rmarkdown", "fastmap"))
 ```
 
 Once successfully installed the above run the following code.
