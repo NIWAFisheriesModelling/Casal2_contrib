@@ -170,11 +170,15 @@ expand_category_shorthand <- function(shorthand_categories, reference_categories
 #' expand_shorthand_syntax(syntax ="age_length*8")
 #' expand_shorthand_syntax(syntax ="age_length_BP*4 age_length_EN*4")
 #' expand_shorthand_syntax(syntax = "1990:2000")
+#' expand_shorthand_syntax(syntax ="age_length_BP*4,age_length_EN*4")
 #' }
 expand_shorthand_syntax <- function(syntax) {
   syntax = paste(syntax, collapse = "")
   ## strip whitespace out of syntax to make it easier
   syntax_no_space = gsub(" ", "", syntax, fixed = TRUE)
+  # we wont deal with  ',' so strip them out to
+  syntax_no_space = gsub(",", "", syntax_no_space, fixed = TRUE)
+
   rep_syntax = grepl(syntax_no_space, pattern = "*", fixed = TRUE)
   colon_syntax = grepl(syntax_no_space, pattern = ":", fixed = TRUE)
 

@@ -47,7 +47,9 @@ names(summary)
 ```{r annual_cycle}
 knitr::kable(x = summary$time_step_df, caption = "Annual cycle")
 ```
-
+```{r estimates}
+knitr::kable(x = summary$estimate_df, caption = "Estimate summary")
+```
 
 ```{r categories}
 knitr::kable(x = summary$full_category_df, caption = "Category information")
