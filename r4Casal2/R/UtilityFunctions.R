@@ -97,6 +97,8 @@ expand_category_block <- function(categories) {
 #' expand_category_shorthand(shorthand_categories ="format=*.EN.*", reference_categories = c("BOP.EN.male", "BOP.EN.female", "HAGU.EN.male", "HAGU.EN.female"))
 #' expand_category_shorthand(shorthand_categories ="format = *.EN.+", reference_categories = c("BOP.EN.male", "BOP.EN.female"))
 #' expand_category_shorthand(shorthand_categories ="format = *.EN.+", reference_categories = c("BOP.EN.male", "BOP.EN.female", "HAGU.EN.male", "HAGU.EN.female"))
+#' expand_category_shorthand(shorthand_categories ="*", reference_categories = c("BOP.EN.male", "BOP.EN.female", "HAGU.EN.male", "HAGU.EN.female"))
+#' expand_category_shorthand(shorthand_categories ="stock=BOP", reference_categories = c("BOP.EN.male", "BOP.EN.female", "HAGU.EN.male", "HAGU.EN.female"), category_format = "stock.area.sex")
 #' }
 expand_category_shorthand <- function(shorthand_categories, reference_categories, category_format = NULL) {
   expanded_categories = vector();
@@ -134,19 +136,24 @@ expand_category_shorthand <- function(shorthand_categories, reference_categories
   rep_syntax = grepl(shorthand_categories_no_space, pattern = "*", fixed = TRUE)
   category_list = list();
   if(rep_syntax) {
-    ## need to repeat some category levels
-    broken_vals = strsplit(shorthand_categories_no_space, ".", fixed = T)[[1]]
-    for(i in 1:length(broken_vals)) {
-      if(broken_vals[i] == "*") {
-        category_list[[i]] = unique(broken_ref_vals[,i])
-      } else {
-        category_list[[i]] = broken_vals[i]
+    if(shorthand_categories_no_space == "*") {
+      # return all categories
+      expanded_categories = reference_categories
+    } else {
+      ## need to repeat some category levels
+      broken_vals = strsplit(shorthand_categories_no_space, ".", fixed = T)[[1]]
+      for(i in 1:length(broken_vals)) {
+        if(broken_vals[i] == "*") {
+          category_list[[i]] = unique(broken_ref_vals[,i])
+        } else {
+          category_list[[i]] = broken_vals[i]
+        }
       }
-    }
-    ## now permutate them
-    all_perms <- expand.grid(category_list, stringsAsFactors = FALSE)
-    for(i in 1:nrow(all_perms)) {
-      expanded_categories = c(expanded_categories, paste0(all_perms[i,], collapse = "."))
+      ## now permutate them
+      all_perms <- expand.grid(category_list, stringsAsFactors = FALSE)
+      for(i in 1:nrow(all_perms)) {
+        expanded_categories = c(expanded_categories, paste0(all_perms[i,], collapse = "."))
+      }
     }
   }
   return(expanded_categories)
@@ -171,6 +178,8 @@ expand_category_shorthand <- function(shorthand_categories, reference_categories
 #' expand_shorthand_syntax(syntax ="age_length_BP*4 age_length_EN*4")
 #' expand_shorthand_syntax(syntax = "1990:2000")
 #' expand_shorthand_syntax(syntax ="age_length_BP*4,age_length_EN*4")
+#' expand_shorthand_syntax(syntax ="0.75*3")
+#' expand_shorthand_syntax(syntax ="0.75 * 3 ")
 #' }
 expand_shorthand_syntax <- function(syntax) {
   syntax = paste(syntax, collapse = "")
@@ -187,22 +196,31 @@ expand_shorthand_syntax <- function(syntax) {
   if(rep_syntax) {
     ## simple expansion
     rep_components = strsplit(syntax_no_space, split = "*", fixed = TRUE)[[1]]
-    ## find number elements
-    for(i in 1:length(rep_components)) {
-      # no numbers
-      if(gsub("[^\\d]+", "", rep_components[i], perl=TRUE) == "") {
-        ## simple case "label"
-        value = rep_components[i]
-      } else if(gsub("[^\\d]+", "", rep_components[i], perl=TRUE) != "" & (nchar(gsub("[^\\d]+", "", rep_components[i], perl=TRUE)) != nchar(rep_components[i]))) {
-        ## has numbers and words...
-        ## get number
-        rep_num = as.numeric(gsub("[^\\d]+", "", rep_components[i], perl=TRUE))
-        repeated_values = c(repeated_values, rep(value, rep_num))
-        ## get the other word
-        value = gsub('[[:digit:]]+', '', rep_components[i])
-      } else {
-        ## just number repeat value by this number
-        repeated_values = c(repeated_values, rep(value, as.numeric(gsub("[^\\d]+", "", rep_components[i], perl=TRUE))))
+    convert_vals = suppressWarnings(as.numeric(rep_components))
+    if(all(!is.na(convert_vals))) {
+      ## all numbers so must be 0.45 * 2
+      #   pairs = length(rep_components) / 2
+      if(length(rep_components) != 2)
+        stop("unknown syntax")
+      repeated_values = rep(convert_vals[1], convert_vals[2])
+    } else {
+      # Numbers and words
+      for(i in 1:length(rep_components)) {
+        # no numbers
+        if(gsub("[^\\d]+", "", rep_components[i], perl=TRUE) == "") {
+          ## simple case "label"
+          value = rep_components[i]
+        } else if(gsub("[^\\d]+", "", rep_components[i], perl=TRUE) != "" & (nchar(gsub("[^\\d]+", "", rep_components[i], perl=TRUE)) != nchar(rep_components[i]))) {
+          ## has numbers and words...
+          ## get number
+          rep_num = as.numeric(gsub("[^\\d]+", "", rep_components[i], perl=TRUE))
+          repeated_values = c(repeated_values, rep(value, rep_num))
+          ## get the other word
+          value = gsub('[[:digit:]]+', '', rep_components[i])
+        } else {
+          ## just number repeat value by this number
+          repeated_values = c(repeated_values, rep(value, as.numeric(gsub("[^\\d]+", "", rep_components[i], perl=TRUE))))
+        }
       }
     }
   } else if(colon_syntax) {

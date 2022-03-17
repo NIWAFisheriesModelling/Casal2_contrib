@@ -152,44 +152,6 @@ summarise_config <- function(config_dir = "", config_file = "config.csl2", quiet
     obs_year_df = rbind(obs_year_df, data.frame(year = model_years, observation = observation_labels[i], type= this_obs$type$value, active = ifelse(active_ndx, 1, NA)))
   }
 
-  ## Catch and M
-  M_by_category = NULL
-  M_time_steps = NULL
-  catch_df = NULL
-  method_df = NULL
-  for(i in 1:length(process_blocks)) {
-    this_process = process_blocks[[i]]
-    if(this_process$type$value == "mortality_instantaneous") {
-      m = expand_shorthand_syntax(this_process$m$value)
-      categories = NULL
-      for(j in 1:length(this_process$categories$value))
-        categories = c(categories, expand_category_shorthand(shorthand_categories = this_process$categories$value[j], reference_categories=category_labels, category_format = category_format))
-      selectivty = NULL
-      for(j in 1:length(this_process$relative_m_by_age$value))
-        selectivty = c(selectivty, expand_shorthand_syntax(this_process$relative_m_by_age$value[j]))
-      M_by_category = rbind(data.frame(process = names(process_blocks)[i], category = categories, M = m, relative_M = selectivty))
-
-      M_time_steps = rbind(M_time_steps, data.frame(process = names(process_blocks)[i], time_step_proportions = this_process$time_step_proportions$value))
-      this_catch = Reduce(cbind, this_process$Table$catches)
-      class(this_catch) = "numeric"
-      colnames(this_catch) = names(this_process$Table$catches)
-      this_catch = as.data.frame(this_catch)
-      this_catch$process = names(process_blocks)[i]
-      catch_df = rbind(catch_df, this_catch)
-
-      this_method = Reduce(cbind, this_process$Table$method)
-      colnames(this_method) = names(this_process$Table$method)
-      this_method = as.data.frame(this_method, stringsAsFactors = F)
-      for(i in 1:nrow(this_method))
-        this_method$category[i] = paste(expand_category_shorthand(this_method$category[i] , category_labels, category_format = category_format), collapse = ",")
-
-      this_method$process = names(process_blocks)[i]
-      method_df = rbind(method_df, this_method)
-    } else if(this_process$type$value == "mortality_instantaneous_retained") {
-
-    }
-  }
-
   ## these are converted to dfs for easy conversion to tables.
   ## Do this last so we can bring growth props and M props
   time_step_df = NULL
@@ -217,7 +179,53 @@ summarise_config <- function(config_dir = "", config_file = "config.csl2", quiet
   colnames(time_step_df_just_lab) = c("Time-step", "Processes", age_length_labs)
   colnames(time_step_df) = c("Time-step", "Processes (type)", age_length_labs)
 
-  ## TODO
+
+  ## Catch and M
+  M_by_category = NULL
+  M_time_steps = NULL
+  catch_df = NULL
+  method_df = NULL
+  for(i in 1:length(process_blocks)) {
+    this_process = process_blocks[[i]]
+    if(this_process$type$value == "mortality_instantaneous") {
+      m = expand_shorthand_syntax(this_process$m$value)
+      categories = NULL
+      for(j in 1:length(this_process$categories$value))
+        categories = c(categories, expand_category_shorthand(shorthand_categories = this_process$categories$value[j], reference_categories=category_labels, category_format = category_format))
+      selectivty = NULL
+      for(j in 1:length(this_process$relative_m_by_age$value))
+        selectivty = c(selectivty, expand_shorthand_syntax(this_process$relative_m_by_age$value[j]))
+      M_by_category = rbind(data.frame(process = names(process_blocks)[i], category = categories, M = m, relative_M = selectivty))
+
+      time_prop = NULL
+      if(is.null(this_process$time_step_proportions$value)) {
+        time_prop = rep(1, nrow(time_step_df))
+      } else {
+        time_prop = this_process$time_step_proportions$value
+      }
+
+
+      M_time_steps = rbind(M_time_steps, data.frame(process = names(process_blocks)[i], time_step_proportions = time_prop))
+      this_catch = Reduce(cbind, this_process$Table$catches)
+      class(this_catch) = "numeric"
+      colnames(this_catch) = names(this_process$Table$catches)
+      this_catch = as.data.frame(this_catch)
+      this_catch$process = names(process_blocks)[i]
+      catch_df = rbind(catch_df, this_catch)
+
+      this_method = Reduce(cbind, this_process$Table$method)
+      colnames(this_method) = names(this_process$Table$method)
+      this_method = as.data.frame(this_method, stringsAsFactors = F)
+      for(i in 1:nrow(this_method))
+        this_method$category[i] = paste(expand_category_shorthand(this_method$category[i] , category_labels, category_format = category_format), collapse = ",")
+
+      this_method$process = names(process_blocks)[i]
+      method_df = rbind(method_df, this_method)
+    } else if(this_process$type$value == "mortality_instantaneous_retained") {
+
+    }
+  }
+
   ## Summarise @estimate blocks
   ## priors type, bounds, starting values
   estimate_df = NULL

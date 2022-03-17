@@ -24,6 +24,8 @@ expand_shorthand_syntax(syntax ="age_length*8")
 expand_shorthand_syntax(syntax ="age_length_BP*4 age_length_EN*4")
 expand_shorthand_syntax(syntax = "1990:2000")
 expand_shorthand_syntax(syntax ="age_length_BP*4,age_length_EN*4")
+expand_shorthand_syntax(syntax ="0.75*3")
+expand_shorthand_syntax(syntax ="0.75 * 3 ")
 }
 }
 \author{

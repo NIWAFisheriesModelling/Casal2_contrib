@@ -58,13 +58,19 @@ function(model, report_label = "", fisheryLabels = NULL, plot.it = T, ...) {
   if (!muliple_iterations_in_a_report) {
     ## only a single trajectory
     f_ndx = grepl(pattern = "fishing_pressure", names(this_report))
+    catch_ndx = grepl(pattern = "catch", substring(names(this_report), first = 1, last = 5))
+    actual_catch_ndx = grepl(pattern = "actual_catch", names(this_report))
+
     start_index = as.numeric(regexpr(pattern = "\\[", text = names(this_report)[f_ndx])) + 1
     stop_index = as.numeric(regexpr(pattern = "\\]", text = names(this_report)[f_ndx])) - 1
     fisheries = substring(names(this_report)[f_ndx], start_index, last = stop_index)
     years = this_report$year
 
     for (i in 1:length(fisheries)) {
-      temp_df = data.frame(Year =this_report$year, Exploitation = this_report[[which(f_ndx)[i]]], Fishery = fisheries[i])
+      temp_df = data.frame(Year =this_report$year, exploitation = this_report[[which(f_ndx)[i]]],
+                           catch = this_report[[which(catch_ndx)[i]]],
+                           actual_catch = this_report[[which(actual_catch_ndx)[i]]],
+                           Fishery = fisheries[i])
       full_df = rbind(full_df, temp_df)
     }
     if(!is.null(fisheryLabels)) {

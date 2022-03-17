@@ -44,6 +44,8 @@ expand_category_shorthand(shorthand_categories ="format=*.EN.*", reference_categ
 expand_category_shorthand(shorthand_categories ="format=*.EN.*", reference_categories = c("BOP.EN.male", "BOP.EN.female", "HAGU.EN.male", "HAGU.EN.female"))
 expand_category_shorthand(shorthand_categories ="format = *.EN.+", reference_categories = c("BOP.EN.male", "BOP.EN.female"))
 expand_category_shorthand(shorthand_categories ="format = *.EN.+", reference_categories = c("BOP.EN.male", "BOP.EN.female", "HAGU.EN.male", "HAGU.EN.female"))
+expand_category_shorthand(shorthand_categories ="*", reference_categories = c("BOP.EN.male", "BOP.EN.female", "HAGU.EN.male", "HAGU.EN.female"))
+expand_category_shorthand(shorthand_categories ="stock=BOP", reference_categories = c("BOP.EN.male", "BOP.EN.female", "HAGU.EN.male", "HAGU.EN.female"), category_format = "stock.area.sex")
 }
 }
 \author{
