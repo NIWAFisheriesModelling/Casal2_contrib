@@ -67,21 +67,22 @@ function(model, report_label = "", fisheryLabels = NULL, plot.it = T, ...) {
     years = this_report$year
 
     for (i in 1:length(fisheries)) {
-      temp_df = data.frame(Year =this_report$year, exploitation = this_report[[which(f_ndx)[i]]],
+      temp_df = data.frame(year =this_report$year, exploitation = this_report[[which(f_ndx)[i]]],
                            catch = this_report[[which(catch_ndx)[i]]],
                            actual_catch = this_report[[which(actual_catch_ndx)[i]]],
-                           Fishery = fisheries[i])
+                           fishery = fisheries[i],
+                           par_set = 1)
       full_df = rbind(full_df, temp_df)
     }
     if(!is.null(fisheryLabels)) {
       if(!all(fisheryLabels %in% fisheries)) {
         stop(paste0("you supplied labesl ", paste(fisheryLabels, collapse = ", "), " but the following fisheries are available ",  paste(fisheries, collapse = ", ")))
       }
-      full_df = full_df %>% filter(Fishery %in% fisheryLabels)
+      full_df = full_df %>% filter(fishery %in% fisheryLabels)
     }
 
     ## create a plot
-    plt = ggplot(full_df, aes(x = Year, y = Exploitation, group = Fishery, col = Fishery)) +
+    plt = ggplot(full_df, aes(x = year, y = exploitation, group = fishery, col = fishery)) +
       geom_line(size = 2)
     if(plot.it)
       return(plt)
@@ -97,7 +98,7 @@ function(model, report_label = "", fisheryLabels = NULL, plot.it = T, ...) {
       fisheries = substring(names(this_report[[dash_i]])[f_ndx], start_index, last = stop_index)
       years = this_report[[dash_i]]$year
       for (i in 1:length(fisheries)) {
-        temp_df = data.frame(Year =years, Exploitation = this_report[[dash_i]][[which(f_ndx)[i]]], Fishery = fisheries[i], par_set = dash_i)
+        temp_df = data.frame(year =years, exploitation = this_report[[dash_i]][[which(f_ndx)[i]]], fishery = fisheries[i], par_set = dash_i)
         full_df = rbind(full_df, temp_df)
       }
     }
@@ -105,12 +106,12 @@ function(model, report_label = "", fisheryLabels = NULL, plot.it = T, ...) {
       if(!all(fisheryLabels %in% fisheries)) {
         stop(paste0("you supplied labesl ", paste(fisheryLabels, collapse = ", "), " but the following fisheries are available ",  paste(fisheries, collapse = ", ")))
       }
-      full_df = full_df %>% filter(Fishery %in% fisheryLabels)
+      full_df = full_df %>% filter(fishery %in% fisheryLabels)
     }
     full_df$par_set = factor(full_df$par_set, ordered = T)
-    plt = ggplot(full_df, aes(x = Year, y = Exploitation, group = par_set, col = par_set)) +
+    plt = ggplot(full_df, aes(x = year, y = exploitation, group = par_set, col = par_set)) +
       geom_line(size = 2) +
-      facet_wrap(~ Fishery)
+      facet_wrap(~ fishery)
     if(plot.it)
       return(plt)
 

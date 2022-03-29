@@ -49,7 +49,7 @@ Flexibility using standard ggplot functions
 ```{r pressures_alt, fig.width=6, fig.height=4}
 # you can add adjust it as you please, for example if you want 3 panels for each fishery
 my_plot + 
-  facet_wrap(~Fishery) + 
+  facet_wrap(~fishery) + 
   theme(axis.text.x = element_text(angle = 90))
 ```
 

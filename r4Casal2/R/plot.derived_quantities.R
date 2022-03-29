@@ -104,7 +104,7 @@
   full_DF = NULL
   for(i in 1:length(model)) {
     multiple_iterations_in_a_report = FALSE
-    this_report = get(report_label, model[[i]])
+    this_report = model[[i]][[report_label]]
     if (any(names(this_report) == "type")) {
       if (this_report$type != "derived_quantity") {
         stop(paste0("The report label '", report_label, "' is not an derived_quantity Please check that the correct report label was specified."))
