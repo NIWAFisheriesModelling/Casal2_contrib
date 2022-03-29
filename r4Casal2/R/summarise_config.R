@@ -142,14 +142,16 @@ summarise_config <- function(config_dir = "", config_file = "config.csl2", quiet
   }
   ## Observations
   obs_year_df = NULL
-  for(i in 1:length(observation_labels)) {
-    this_obs = observation_blocks[[observation_labels[i]]]
-    years = NULL
-    for(y in 1:length(this_obs$years$value)) {
-      years = c(years, expand_shorthand_syntax(this_obs$years$value[y]))
+  if(!is.null(observation_labels)) {
+    for(i in 1:length(observation_labels)) {
+      this_obs = observation_blocks[[observation_labels[i]]]
+      years = NULL
+      for(y in 1:length(this_obs$years$value)) {
+        years = c(years, expand_shorthand_syntax(this_obs$years$value[y]))
+      }
+      active_ndx = model_years %in% years
+      obs_year_df = rbind(obs_year_df, data.frame(year = model_years, observation = observation_labels[i], type= this_obs$type$value, active = ifelse(active_ndx, 1, NA)))
     }
-    active_ndx = model_years %in% years
-    obs_year_df = rbind(obs_year_df, data.frame(year = model_years, observation = observation_labels[i], type= this_obs$type$value, active = ifelse(active_ndx, 1, NA)))
   }
 
   ## these are converted to dfs for easy conversion to tables.
@@ -229,30 +231,32 @@ summarise_config <- function(config_dir = "", config_file = "config.csl2", quiet
   ## Summarise @estimate blocks
   ## priors type, bounds, starting values
   estimate_df = NULL
-  for(i in 1:length(estimate_blocks)) {
-    this_estimate = estimate_blocks[[i]]
-    label = names(estimate_blocks)[i]
-    parameter = this_estimate$parameter$value
-    type = this_estimate$type$value
-    lower_bound = this_estimate$lower_bound$value
-    upper_bound = this_estimate$upper_bound$value
-    same = this_estimate$save$value
-    if(!is.null(same)) {
-      if(length(same) > 1) {
-        same = paste(same, collapse = ", ");
+  if(length(estimate_blocks) > 0) {
+    for(i in 1:length(estimate_blocks)) {
+      this_estimate = estimate_blocks[[i]]
+      label = names(estimate_blocks)[i]
+      parameter = this_estimate$parameter$value
+      type = this_estimate$type$value
+      lower_bound = this_estimate$lower_bound$value
+      upper_bound = this_estimate$upper_bound$value
+      same = this_estimate$save$value
+      if(!is.null(same)) {
+        if(length(same) > 1) {
+          same = paste(same, collapse = ", ");
+        }
+      } else {
+        same = "-";
       }
-    } else {
-      same = "-";
-    }
-    if(length(lower_bound) > 1) {
-      lower_bound = paste(lower_bound, collapse = " ");
-    }
-    if(length(upper_bound) > 1) {
-      upper_bound = paste(upper_bound, collapse = " ");
-    }
+      if(length(lower_bound) > 1) {
+        lower_bound = paste(lower_bound, collapse = " ");
+      }
+      if(length(upper_bound) > 1) {
+        upper_bound = paste(upper_bound, collapse = " ");
+      }
 
-    this_df = data.frame(label = label, same = same, prior = type, lower_bound = lower_bound, upper_bound = upper_bound)
-    estimate_df = rbind(estimate_df, this_df)
+      this_df = data.frame(label = label, same = same, prior = type, lower_bound = lower_bound, upper_bound = upper_bound)
+      estimate_df = rbind(estimate_df, this_df)
+    }
   }
 
   return(list(category_df = category_df, estimate_df = estimate_df, full_category_df = full_category_df, method_df = method_df, catch_df = catch_df, time_step_df = time_step_df, time_step_df_just_lab = time_step_df_just_lab, obs_year_df = obs_year_df, model_years = model_years, model_ages = ages, model_length_bins = model_length_bins, M_by_category = M_by_category))

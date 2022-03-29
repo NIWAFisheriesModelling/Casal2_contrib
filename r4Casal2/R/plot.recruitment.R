@@ -19,7 +19,7 @@
 #' @rdname plot.recruitment
 #' @export plot.recruitment
 #' @importFrom dplyr filter
-#' @importFrom ggplot2 ggplot geom_line aes theme facet_wrap
+#' @importFrom ggplot2 ggplot geom_line aes theme facet_wrap aes_string
 #' @details
 #' If you have multiple time-steps and Recruitment
 
@@ -75,11 +75,13 @@
                          standardised_ycs = this_report$standardised_ycs,
                          ycs_values = this_report$ycs_values,
                          recruits = this_report$Recruits,
-                         true_ycs = this_report$true_ycs
-                         )
+                         true_ycs = this_report$true_ycs,
+                         par_set = 1,
+                         label = report_label)
+
 
     ## create a plot
-    plt = ggplot(full_df, aes(x = Year, y = var(quantity))) +
+    plt = ggplot(full_df, aes_string(x = "ycs_years", y = quantity)) +
       geom_line(size = 2)
     if(plot.it)
       return(plt)
@@ -88,10 +90,20 @@
     ## Multiple parameter inputs
     n_runs = length(this_report)
     for(dash_i in 1:n_runs) {
-
+      ## only a single trajectory
+      temp_df = data.frame(
+        standardised_ycs = this_report[[dash_i]]$standardised_ycs,
+        ycs_values = this_report[[dash_i]]$ycs_values,
+        ycs_years = this_report[[dash_i]]$ycs_years,
+        Recruits = this_report[[dash_i]]$Recruits,
+        true_ycs = this_report[[dash_i]]$true_ycs,
+        par_set = dash_i,
+        label = report_label)
+      full_df = rbind(full_df, temp_df)
     }
-
-    full_df$par_set = factor(full_df$par_set, ordered = T)
+    ## create a plot
+    plt = ggplot(full_df, aes_string(x = "ycs_years", y = quantity)) +
+      geom_line(size = 2)
 
     if(plot.it)
       return(plt)
