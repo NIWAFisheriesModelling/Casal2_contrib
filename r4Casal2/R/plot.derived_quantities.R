@@ -102,6 +102,7 @@
 "plot.derived_quantities.list" <- function(model, report_label = "", plot_type = "classic", plot.it = T) {
   run_labs = names(model)
   full_DF = NULL
+
   for(i in 1:length(model)) {
     multiple_iterations_in_a_report = FALSE
     this_report = model[[i]][[report_label]]

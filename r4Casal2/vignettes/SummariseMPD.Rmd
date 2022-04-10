@@ -60,8 +60,10 @@ my_plot + ylim(0,0.05) + geom_hline(yintercept = 0.03, linetype = "dashed")
 
 ## Plotting selectivities
 ```{r selectivities_mpd, fig.width=6, fig.height=4}
-my_plot = r4Casal2::plot.selectivities(model = mpd, report_labels = c("summerTANSel_f", "autumnTANSel_f", "summerTANSel_m", "autumnTANSel_m"), plot.it = T)
-print(my_plot)
+selectivity_df = get_selectivities(model = mpd)
+ggplot(selectivity_df, aes(x = bin, y = selectivity, col = label)) +
+  geom_line(size = 1.5) +
+  facet_wrap(~label)
 
 ```
 
@@ -78,7 +80,15 @@ my_plot = my_plot + theme(axis.text.x = element_text(angle = 90))
 print(my_plot)
 ```
 
+## Plotting selectivities from -i
+```{r selectivities_multi, fig.width=6, fig.height=4}
+selectivity_df = get_selectivities(mpd)
+selectivity_df$par_set = factor(selectivity_df$par_set, ordered = T)
+ggplot(selectivity_df, aes(x = bin, y = selectivity, col = label, line_type = par_set)) +
+  geom_line(size = 1.5) +
+  facet_grid(par_set~label)
 
+```
 
 ## Plotting Fits
 
@@ -88,9 +98,4 @@ my_plot
 
 ```
 
-## Plotting Selectivities
-```{r plot_selectivities, fig.width=10, fig.height=6}
-my_plot = r4Casal2::plot.selectivities(model = mpd, report_labels = c("summerTANSel_f", "autumnTANSel_f", "summerTANSel_m", "autumnTANSel_m"))
-my_plot
 
-```
