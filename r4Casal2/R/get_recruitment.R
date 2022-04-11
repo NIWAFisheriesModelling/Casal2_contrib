@@ -92,8 +92,50 @@
 #'
 #' @rdname get_BH_recruitment
 #' @method get_BH_recruitment casal2TAB
+#' @return A list frame from Casal2 model output. There is a non_multi_column_df which contains non year varying components such as B0, steepness etc and a multi_column_df which has ssb, recrutis, ycs etc
+
 #' @export
 "get_BH_recruitment.casal2TAB" = function(model) {
-  error("not implemented")
+  reports_labels = names(model)
+  complete_df = NULL
+  for(i in 1:length(model)) {
+    this_report = model[[i]]
+    if(this_report$type != "process") {
+      next;
+    }
+    if(this_report$sub_type != "recruitment_beverton_holt") {
+      next;
+    }
+    collabs = colnames(this_report$values)
+    first_component = Reduce(c, lapply(strsplit(collabs, split = "[", fixed = T), FUN = function(x){x[1]}))
+    components = unique(first_component)
+    multi_column_df = non_multi_column_df = NULL
+    non_multi_col_labs = multi_col_labs = NULL
+    for(j in 1:length(components)) {
+      col_ndx = grepl(collabs, pattern = components[j])
+      if(sum(col_ndx, na.rm = T) == 1) {
+        non_multi_column_df = cbind(non_multi_column_df, this_report$values[,col_ndx])
+        non_multi_col_labs = c(non_multi_col_labs, components[j])
+      } else {
+        long_format = suppressMessages({melt((this_report$values[,col_ndx]), variable.name = "colname", value.name = "values", factorsAsStrings = T)})
+        long_format$colname = as.character(long_format$colname)
+        second_component = Reduce(c, lapply(strsplit(long_format$colname, split = "[", fixed = T), FUN = function(x){x[2]}))
+        second_component = substring(second_component, first = 1, last = nchar(second_component) - 1)
+        long_format$years = second_component
+        ## drop colname
+        long_format = long_format[, -which(colnames(long_format) == "colname")]
+        multi_col_labs = c(multi_col_labs, components[j], paste0(components[j],"_year"))
+        multi_column_df = cbind(multi_column_df, as.matrix(long_format))
+
+      }
+    }
+    colnames(multi_column_df) = multi_col_labs
+    colnames(non_multi_column_df) = non_multi_col_labs
+    multi_column_df = as.data.frame(multi_column_df)
+    non_multi_column_df = as.data.frame(non_multi_column_df)
+
+  }
+  return(list(multi_column_df = multi_column_df, non_multi_column_df = non_multi_column_df))
+  invisible()
 }
 
