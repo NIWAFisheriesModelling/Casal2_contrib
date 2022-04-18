@@ -19,7 +19,7 @@ get_composition_observations(model)
 dataframe with all observations of type == 'observation' and observation_type %in% c('biomass', 'abundance')
 }
 \description{
-
+An accessor function that returns a data frame of all composition data sets in a model
 }
 \author{
 Craig Marsh

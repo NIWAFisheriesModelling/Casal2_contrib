@@ -19,7 +19,7 @@ get_abundance_observations(model)
 dataframe with all observations of type == 'observation' and observation_type %in% c('biomass', 'abundance')
 }
 \description{
-A plotting function to plot fishing presuure (U's ) for 'casal2TAB' and 'casal2MPD' objects.
+An accessor function that returns a data frame of all relative abundance data sets in a model
 }
 \author{
 Craig Marsh

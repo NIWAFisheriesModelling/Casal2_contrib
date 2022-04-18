@@ -20,6 +20,8 @@ get_BH_recruitment(model)
 }
 \value{
 A data frame from Casal2 model output
+
+A list frame from Casal2 model output. There is a non_multi_column_df which contains non year varying components such as B0, steepness etc and a multi_column_df which has ssb, recrutis, ycs etc
 }
 \description{
 An accessor function that returns a data frame from a Casal2 model output of process type recruitment

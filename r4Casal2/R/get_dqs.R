@@ -40,6 +40,9 @@
       dq_df$label = reports_labels[i]
       complete_df = rbind(complete_df, dq_df)
     } else {
+      if(this_report$'1'$type != "derived_quantity") {
+        next;
+      }
       n_runs = length(this_report)
       for(dash_i in 1:n_runs) {
         ##
@@ -49,10 +52,10 @@
           temp_df = data.frame(par_set = dash_i, years = names(this_report[[dash_i]][[DQ_types[dq_iter]]]$values), values = this_report[[dash_i]][[DQ_types[dq_iter]]]$values, dq_label = DQ_types[dq_iter]);
           dq_df = rbind(dq_df, temp_df)
         }
-        full_DF = rbind(full_DF, dq_df)
+        complete_df = rbind(complete_df, dq_df)
       }
       dq_df$label = reports_labels[i]
-      full_DF$par_set = factor(full_DF$par_set, ordered = T)
+      complete_df$par_set = factor(complete_df$par_set, ordered = T)
 
     }
   }
@@ -93,18 +96,24 @@
     if(this_report$type != "derived_quantity") {
       next;
     }
-    long_format = suppressMessages({melt((this_report$values), variable.name = "colname", value.name = "values", factorsAsStrings = T)})
-    long_format$label = reports_labels[i]
-    long_format$colname = as.character(long_format$colname)
-    first_component = Reduce(c, lapply(strsplit(long_format$colname, split = "[", fixed = T), FUN = function(x){x[1]}))
-    second_component = Reduce(c, lapply(strsplit(long_format$colname, split = "[", fixed = T), FUN = function(x){x[2]}))
-    third_component = Reduce(c, lapply(strsplit(long_format$colname, split = "[", fixed = T), FUN = function(x){x[3]}))
+    colabs = colnames(this_report$values)
+    first_component = Reduce(c, lapply(strsplit(colabs, split = "[", fixed = T), FUN = function(x){x[1]}))
+    second_component = Reduce(c, lapply(strsplit(colabs, split = "[", fixed = T), FUN = function(x){x[2]}))
+    third_component = Reduce(c, lapply(strsplit(colabs, split = "[", fixed = T), FUN = function(x){x[3]}))
     ##
     second_component = substring(second_component, first = 1, last = nchar(second_component) - 1)
     third_component = substring(third_component, first = 1, last = nchar(third_component) - 1)
-    long_format$years = third_component
-    long_format$dq_label = second_component
-    long_format$type = first_component
+    newcolab = paste(second_component, third_component,first_component, sep = "-")
+    colnames(this_report$values) = newcolab
+
+    long_format = suppressMessages({melt((this_report$values), variable.name = "colname", value.name = "values", factorsAsStrings = T)})
+    long_format$label = reports_labels[i]
+    long_format$colname = as.character(long_format$colname)
+    new_cols = Reduce(rbind, strsplit(long_format$colname, split = "-", fixed = T))
+    ##
+    long_format$years = new_cols[,2]
+    long_format$dq_label = new_cols[,1]
+    long_format$type = new_cols[,3]
     complete_df = rbind(complete_df, long_format)
   }
   return(complete_df)

@@ -49,7 +49,6 @@
       complete_df = rbind(complete_df, this_selectivity)
       next;
     } else {
-      print("multi iteration report found")
       multiple_iterations_in_a_report <- TRUE
       if (this_report$'1'$type != "selectivity") {
         next;
