@@ -118,7 +118,7 @@
     for(j in 1:length(components)) {
       col_ndx = grepl(collabs, pattern = components[j])
       if(sum(col_ndx, na.rm = T) == 1) {
-        non_multi_column_df = cbind(non_multi_column_df, this_report$values[,col_ndx])
+        non_multi_column_df = cbind(non_multi_column_df, as.numeric(this_report$values[,col_ndx]))
         non_multi_col_labs = c(non_multi_col_labs, components[j])
       } else {
         long_format = suppressMessages({melt((this_report$values[,col_ndx]), variable.name = "colname", value.name = "values", factorsAsStrings = T)})
@@ -129,7 +129,9 @@
         ## drop colname
         long_format = long_format[, -which(colnames(long_format) == "colname")]
         multi_col_labs = c(multi_col_labs, components[j], paste0(components[j],"_year"))
-        multi_column_df = cbind(multi_column_df, as.matrix(long_format))
+        temp_mat = as.matrix(long_format)
+        class(temp_mat) = "as.numeric"
+        multi_column_df = cbind(multi_column_df, temp_mat)
 
       }
     }

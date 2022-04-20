@@ -50,7 +50,7 @@ create_simulation_reports <- function(config_dir = "", config_files, output_fold
   for(i in 1:length(config_files)) {
     this_config = tryCatch(expr = extract.csl2.file(file = config_path_file[i], quiet = T), error=function(e) {e}, warning=function(w) {w})
     if(inherits(this_config, "error") | inherits(this_config, "warning")) {
-      stop(paste0("failed to extract.csl2.file for ", config_path_file[i]))
+      stop(paste0("failed to extract.csl2.file for ", config_path_file[i], " error = ", this_config$message))
     }
     block_type_labels = names(this_config)
     block_labels = sapply(strsplit(block_type_labels, split = "\\["), "[", 2)
