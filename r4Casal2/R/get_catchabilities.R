@@ -30,7 +30,7 @@
       if(this_report$type != "catchability") {
         next;
       }
-      temp_df = data.frame(par_set = 1, label = this_report$label, catchability = this_report$q);
+      temp_df = data.frame(par_set = 1, label = reports_labels[i], catchability = this_report$q);
       complete_df = rbind(complete_df, temp_df)
     } else {
       if(this_report$'1'$type != "catchability") {
@@ -38,7 +38,7 @@
       }
       n_runs = length(this_report)
       for(dash_i in 1:n_runs) {
-        temp_df = data.frame(par_set = dash_i, label = this_report[[dash_i]]$label, catchability = this_report[[dash_i]]$q);
+        temp_df = data.frame(par_set = dash_i, label = reports_labels[i], catchability = this_report[[dash_i]]$q);
         complete_df = rbind(complete_df, temp_df)
       }
       complete_df$par_set = factor(complete_df$par_set, ordered = T)
