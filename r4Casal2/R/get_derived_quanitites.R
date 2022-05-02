@@ -1,25 +1,30 @@
-#' @title get_dqs
+#' @title get_derived_quanitites
 #'
 #' @description
-#' An accessor function that returns a data frame from a Casal2 model output of selectivities
+#' An accessor function that returns a data frame from a Casal2 model output of derived_quantities
 #'
 #' @author Craig Marsh
 #' @param model <casal2MPD, casal2TAB> object that are generated from one of the extract.mpd() and extract.tabular() functions.
 #' @return A data frame with all derived quantitiy reports from Casal2 model output
-#' @rdname get_dqs
-#' @export get_dqs
+#' @rdname get_derived_quanitites
+#' @export get_derived_quanitites
 #' @importFrom reshape2 melt
 
+
+"get_derived_quanitites" <-
+  function(model) {
+    UseMethod("get_derived_quanitites", model)
+  }
+  ## shorthand version for lazy people
 "get_dqs" <-
   function(model) {
-    UseMethod("get_dqs", model)
+    UseMethod("get_derived_quanitites", model)
   }
-
 #'
-#' @rdname get_dqs
-#' @method get_dqs casal2MPD
+#' @rdname get_derived_quanitites
+#' @method get_derived_quanitites casal2MPD
 #' @export
-"get_dqs.casal2MPD" = function(model) {
+"get_derived_quanitites.casal2MPD" = function(model) {
   # can be -r or -r -i
   multiple_iterations_in_a_report = FALSE
   complete_df = NULL
@@ -65,10 +70,10 @@
 }
 
 #'
-#' @rdname get_dqs
-#' @method get_dqs list
+#' @rdname get_derived_quanitites
+#' @method get_derived_quanitites list
 #' @export
-"get_dqs.list" = function(model) {
+"get_derived_quanitites.list" = function(model) {
   run_labs = names(model)
   full_DF = NULL
   ## iterate over the models
@@ -76,7 +81,7 @@
     if(class(model[[i]]) != "casal2MPD") {
       stop(paste0("This function only works on a named list with elements of class = 'casal2MPD'"))
     }
-    this_dq = get_dqs(model[[i]])
+    this_dq = get_derived_quanitites(model[[i]])
     this_dq$model_label = run_labs[i]
     full_DF = rbind(full_DF, this_dq);
   }
@@ -85,10 +90,10 @@
 }
 
 #'
-#' @rdname get_dqs
-#' @method get_dqs casal2TAB
+#' @rdname get_derived_quanitites
+#' @method get_derived_quanitites casal2TAB
 #' @export
-"get_dqs.casal2TAB" = function(model) {
+"get_derived_quanitites.casal2TAB" = function(model) {
   reports_labels = names(model)
   complete_df = NULL
   for(i in 1:length(model)) {
