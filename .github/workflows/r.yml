@@ -17,9 +17,9 @@ on:
 permissions:
   contents: read
 
-jobs: Windows
-  build:
-    runs-on: Windows-latest
+jobs:
+  r4Casal2-windows:
+    runs-on: windows-latest
     strategy:
       matrix:
         r-version: ['3.6.3', '4.1.1']
