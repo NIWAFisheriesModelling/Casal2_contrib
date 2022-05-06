@@ -16,6 +16,7 @@
     UseMethod("get_derived_quanitites", model)
   }
   ## shorthand version for lazy people
+#' @export get_dqs
 "get_dqs" <-
   function(model) {
     UseMethod("get_derived_quanitites", model)
@@ -94,6 +95,7 @@
 #' @method get_derived_quanitites casal2TAB
 #' @export
 "get_derived_quanitites.casal2TAB" = function(model) {
+  #Note: needs to be optimised
   reports_labels = names(model)
   complete_df = NULL
   for(i in 1:length(model)) {
@@ -114,11 +116,14 @@
     long_format = suppressMessages({melt((this_report$values), variable.name = "colname", value.name = "values", factorsAsStrings = T)})
     long_format$label = reports_labels[i]
     long_format$colname = as.character(long_format$colname)
-    new_cols = Reduce(rbind, strsplit(long_format$colname, split = "-", fixed = T))
+    split_cols = strsplit(long_format$colname, split = "-", fixed = T)
+    dq_label = unlist(lapply(split_cols, function(x){x[1]}))
+    years = unlist(lapply(split_cols, function(x){x[2]}))
+    type = unlist(lapply(split_cols, function(x){x[3]}))
     ##
-    long_format$years = new_cols[,2]
-    long_format$dq_label = new_cols[,1]
-    long_format$type = new_cols[,3]
+    long_format$years = years
+    long_format$dq_label = dq_label
+    long_format$type = type
     complete_df = rbind(complete_df, long_format)
   }
   return(complete_df)

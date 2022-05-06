@@ -34,6 +34,9 @@ A vignette to show users functions in `r4Casal2` and in the `Casal2` base packag
 ```{r run_models, fig.width=6, fig.height=4}
 cas2_file_name = system.file("extdata", "tabular.log", package = "r4Casal2", mustWork = TRUE)
 cas2_tab = extract.tabular(file = cas2_file_name)
+
+## bayesplot objects need to be an array
+## array( dim = c(Iteration, Chain, Parameter))
 ```
 
 
@@ -42,7 +45,7 @@ cas2_tab = extract.tabular(file = cas2_file_name)
 ```{r selectivities, fig.width=6, fig.height=4}
 selectivity_df = get_selectivities(cas2_tab)
 
-ggplot(selectivity_df, aes(x = bin, y = selectivity, col = model_label, linetype = model_label)) +
+ggplot(selectivity_df, aes(x = bin, y = selectivity, col = label, linetype = label)) +
   geom_line(size = 1.5) +
   facet_wrap(~label) +
   labs(x = "Age", y = "Ogive", col = "Model", linetype = "Model")
@@ -50,7 +53,7 @@ ggplot(selectivity_df, aes(x = bin, y = selectivity, col = model_label, linetype
 
 ### Derived quantities
 ```{r dqs, fig.width=6, fig.height=4}
-dq_df = get_dqs(models)
+dq_df = get_derived_quanitites(cas2_tab)
 dq_df$years = as.numeric(dq_df$years)
 ggplot(dq_df, aes(x = years, y = values, col = model_label, linetype = model_label)) +
   geom_line(size = 1.5) +
