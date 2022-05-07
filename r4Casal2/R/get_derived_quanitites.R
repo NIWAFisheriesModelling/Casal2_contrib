@@ -15,7 +15,11 @@
   function(model) {
     UseMethod("get_derived_quanitites", model)
   }
-  ## shorthand version for lazy people
+## shorthand version for lazy people like me
+#' @title get_dqs
+#' @param model <casal2MPD, casal2TAB> object that are generated from one of the extract.mpd() and extract.tabular() functions.
+#' @return A data frame with all derived quantitiy reports from Casal2 model output
+#' @rdname get_dqs
 #' @export get_dqs
 "get_dqs" <-
   function(model) {
@@ -29,7 +33,7 @@
   # can be -r or -r -i
   multiple_iterations_in_a_report = FALSE
   complete_df = NULL
-  reports_labels = names(model)
+  reports_labels = reformat_default_labels(names(model))
   for(i in 1:length(model)) {
     this_report = model[[i]]
     if(any(names(this_report) == "type")) {
@@ -96,7 +100,7 @@
 #' @export
 "get_derived_quanitites.casal2TAB" = function(model) {
   #Note: needs to be optimised
-  reports_labels = names(model)
+  reports_labels = reformat_default_labels(names(model))
   complete_df = NULL
   for(i in 1:length(model)) {
     this_report = model[[i]]

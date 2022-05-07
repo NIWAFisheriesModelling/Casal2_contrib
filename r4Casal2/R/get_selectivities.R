@@ -24,7 +24,7 @@
   # can be -r or -r -i
   multiple_iterations_in_a_report = FALSE
   complete_df = NULL
-  reports_labels = names(model)
+  reports_labels = reformat_default_labels(names(model))
   for(i in 1:length(model)) {
     this_report = model[[i]]
     if(any(names(this_report) == "type")) {
@@ -34,6 +34,7 @@
       ## add it to full df
       this_selectivity = data.frame(selectivity = as.numeric(this_report$Values), bin = names(this_report$Values))
       this_selectivity$label = reports_labels[i]
+      this_selectivity$selectivity_label = reports_labels[i]
       this_selectivity$par_set = 1 ## so compatible with -i runs
       ## check col compatibility some reports will print residuals and some wont
       if(!is.null(complete_df)) {
@@ -57,7 +58,7 @@
       for(dash_i in 1:n_runs) {
         ## add it to full df
         this_selectivity = data.frame(selectivity = as.numeric(this_report[[dash_i]]$Values), bin = names(this_report[[dash_i]]$Values))
-        this_selectivity$label = reports_labels[i]
+        this_selectivity$report_label = reports_labels[i]
         this_selectivity$par_set = dash_i
         ## check col compatibility some reports will print residuals and some wont
         if(!is.null(complete_df)) {
@@ -106,21 +107,28 @@
 #' @method get_selectivities casal2TAB
 #' @export
 "get_selectivities.casal2TAB" = function(model) {
-  reports_labels = names(model)
+  reports_labels = reformat_default_labels(names(model))
   complete_df = NULL
   for(i in 1:length(model)) {
     this_report = model[[i]]
     if(this_report$type != "selectivity") {
       next;
     }
-    colabs = colnames(this_report$values)
-    bin_labs = Reduce(c, lapply(strsplit(colabs, split = ".", fixed = T), FUN = function(x){x[2]}))
-    colnames(this_report$values) = bin_labs
-    long_format = suppressMessages({melt((this_report$values), variable.name = "bin", value.name = "selectivity")})
-    long_format$label = reports_labels[i]
-    complete_df = rbind(complete_df, long_format)
+    sel_df = this_report$values
+    sel_molten = suppressMessages({melt((sel_df), variable.name = "colname", value.name = "selectivity", factorsAsStrings = F)})
+    bin_labs = unlist(lapply(strsplit(as.character(sel_molten$colname), split = ".", fixed = T), FUN = function(x){x[2]}))
+    selectivity_lab = unlist(lapply(strsplit(as.character(sel_molten$colname), split = ".", fixed = T), FUN = function(x){x[1]}))
+    ## cut out selectivity
+    selectivity_lab = unlist(lapply(strsplit(selectivity_lab, split = "[", fixed = T), FUN = function(x){x[2]}))
+    selectivity_lab = substring(selectivity_lab, first = 1, last = nchar(selectivity_lab) - 1)
+
+
+
+    sel_molten$bin = as.numeric(bin_labs)
+    sel_molten$report_label = reports_labels[i]
+    sel_molten$selectivity_label = selectivity_lab
+    complete_df = rbind(complete_df, sel_molten)
   }
-  complete_df$bin = as.numeric(complete_df$bin)
   return(complete_df)
   invisible()
 }

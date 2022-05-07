@@ -24,7 +24,7 @@
   # can be -r or -r -i
   multiple_iterations_in_a_report = FALSE
   complete_df = NULL
-  reports_labels = names(model)
+  reports_labels = reformat_default_labels(names(model))
   for(i in 1:length(model)) {
     this_report = model[[i]]
     if(any(names(this_report) == "type")) {
@@ -107,6 +107,6 @@
 #' @method get_fishing_pressure casal2TAB
 #' @export
 "get_fishing_pressure.casal2TAB" = function(model) {
-  error("not implemented")
+  stop("not implemented")
 }
 
