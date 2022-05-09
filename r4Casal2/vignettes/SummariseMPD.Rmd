@@ -84,9 +84,9 @@ print(my_plot)
 ```{r selectivities_multi, fig.width=6, fig.height=4}
 selectivity_df = get_selectivities(mpd)
 selectivity_df$par_set = factor(selectivity_df$par_set, ordered = T)
-ggplot(selectivity_df, aes(x = bin, y = selectivity, col = label, line_type = par_set)) +
+ggplot(selectivity_df, aes(x = bin, y = selectivity, col = report_label, line_type = par_set)) +
   geom_line(size = 1.5) +
-  facet_grid(par_set~label)
+  facet_grid(par_set~report_label)
 
 ```
 

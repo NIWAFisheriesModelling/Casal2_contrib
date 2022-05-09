@@ -1,15 +1,15 @@
 ---
-  title: "Casal2 MCMC"
+title: "Casal2MCMC"
 output:
   html_vignette: default
 vignette: >
   %\VignetteIndexEntry{Casal2MCMC}
-%\VignetteEngine{knitr::rmarkdown}
-%\VignetteEncoding{UTF-8}
-number_sections: false
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+number_sections: false  
 ---
 
-  ```{r, include = FALSE}
+```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -32,7 +32,7 @@ A vignette to show users functions in `r4Casal2` and in the `Casal2` base packag
 
 
 ## Read in models
-```{r run_models, fig.width=6, fig.height=4}
+```{r run_models, echo = F}
 cas2_file_name = system.file("extdata", "tabular.log", package = "r4Casal2", mustWork = TRUE)
 cas2_tab = extract.tabular(file = cas2_file_name)
 
@@ -62,13 +62,13 @@ p_funs
 ```{r selectivities, fig.width=6, fig.height=4}
 selectivity_df = get_selectivities(cas2_tab)
 quantile_selectivity_df = selectivity_df %>% 
-  group_by(bin, label) %>% 
+  group_by(bin, selectivity_label) %>% 
   summarize_at(vars(selectivity), p_funs)
 
 ggplot(quantile_selectivity_df, aes(x = bin)) +
-  geom_ribbon(aes(ymax  = low, ymin = upp, alpha = 0.5, col = label, fill = label), lwd=0) +
-  geom_line(aes(y = mid, col = label, group = label), size =2, alpha = 1) +
-  facet_wrap(~label) +
+  geom_ribbon(aes(ymax  = low, ymin = upp, alpha = 0.5, col = selectivity_label, fill = selectivity_label), lwd=0) +
+  geom_line(aes(y = mid, col = selectivity_label, group = selectivity_label), size =2, alpha = 1) +
+  facet_wrap(~selectivity_label) +
   labs(x = "Age", y = "Ogive", col = "Model", linetype = "Model")
 ```
 
@@ -80,7 +80,12 @@ ssbs = get_derived_quanitites(model = cas2_tab)
 #head(ssbs)
 #ssbs_mpd$years = as.numeric(ssbs_mpd$years)
 
-quantile_ssb_df$years[quantile_ssb_df$years == "initialisation_phase_1"] = 1971
+ssbs$years[ssbs$years == "initialisation_phase_1"] = 1971
+
+quantile_ssb_df = ssbs %>% 
+  group_by(years, dq_label) %>% 
+  summarize_at(vars(values), p_funs)
+
 quantile_ssb_df$years = as.numeric(quantile_ssb_df$years)
 ## 
 quant_ssb_plot = ggplot(quantile_ssb_df, aes(x = years)) + 
