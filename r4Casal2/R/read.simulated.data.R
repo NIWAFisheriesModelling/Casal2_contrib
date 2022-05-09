@@ -56,6 +56,8 @@ read.simulated.data <- function(dir, verbose = FALSE, mean_age = TRUE) {
         ## relative index obs
         obs_table = Reduce(rbind, this_ob$Table$obs[this_ob$years$value])
         class(obs_table) = "numeric"
+        if(is.null(dim(obs_table)))
+          obs_table = matrix(obs_table, nrow = 1)
         rownames(obs_table) = NULL
         sim_obs[n][[1]] = cbind(sim_obs[n][[1]], obs_table[,1])
       } else if (this_ob$type$value %in% c("process_removals_by_length", "proportions_at_length")) {

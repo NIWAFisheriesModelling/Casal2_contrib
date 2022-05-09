@@ -12,7 +12,7 @@ get_simulated_age_resids(simulated_obs, observation_report)
 \item{observation_report}{<data.frame> values data frame from casal2 report type = observation}
 }
 \value{
-A list of objects. 
+A list of objects.
 \itemize{
   \item mpd_df data frame with observed expected and quantile residuals (assumed U(0,1)) and normal map residuals (assumed N(0,1))
   \item full_simulated_values data frame with all simulated observations for years and ages
@@ -22,7 +22,7 @@ A list of objects.
 }
 }
 \description{
-A function for calculating simulation-based scaled (quantile) residuals from simulated observations from Casal2 and 
+A function for calculating simulation-based scaled (quantile) residuals from simulated observations from Casal2 and
 DHARMa inbuilt functionality
 }
 \details{

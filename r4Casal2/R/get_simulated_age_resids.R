@@ -1,15 +1,15 @@
 #' @title get_simulated_age_resids
 #'
 #' @description
-#' A function for calculating simulation-based scaled (quantile) residuals from simulated observations from Casal2 and 
+#' A function for calculating simulation-based scaled (quantile) residuals from simulated observations from Casal2 and
 #' DHARMa inbuilt functionality
 #'
 #' @details this package takes simualted data read into R from r4Casal2::read.simulated.data() function along with MPD observation report estimates
-#' and uses DHARMa (vignette("DHARMa", package="DHARMa")) to calculate simulation-based scaled (quantile) residuals 
+#' and uses DHARMa (vignette("DHARMa", package="DHARMa")) to calculate simulation-based scaled (quantile) residuals
 #' @author Craig Marsh
 #' @param simulated_obs <list> output from read.simulated.data() function
-#' @param observation_report <data.frame> values data frame from casal2 report type = observation 
-#' @return A list of objects. 
+#' @param observation_report <data.frame> values data frame from casal2 report type = observation
+#' @return A list of objects.
 #' \itemize{
 #'   \item mpd_df data frame with observed expected and quantile residuals (assumed U(0,1)) and normal map residuals (assumed N(0,1))
 #'   \item full_simulated_values data frame with all simulated observations for years and ages
@@ -23,7 +23,7 @@
 #' @export get_simulated_age_resids
 #' @examples
 #' \donttest{
-#' 
+#'
 #' }
 
 get_simulated_age_resids <- function(simulated_obs, observation_report) {
@@ -42,19 +42,19 @@ get_simulated_age_resids <- function(simulated_obs, observation_report) {
   quantile_resid = norm_quantile_resids = matrix(NA, nrow = length(years), ncol = length(ages), dimnames = list(years, ages))
   auto_corr_p_val = dispersion_p_val = zero_inflat_p_val = vector()
   full_sim_data = NULL
-  for(y in 1:length(sim_CRsumage)) {
+  for(y in 1:length(simulated_obs)) {
     obs_ndx = mpd_vals$year == years[y]
     obs = mpd_vals$observed[obs_ndx] * mpd_vals$error_value[obs_ndx]
     #ages = mpd_vals$age[obs_ndx]
-    
+
     fitted_val = mpd_vals$expected[obs_ndx] * mpd_vals$error_value[obs_ndx]
-    sim_year_obs = sim_CRsumage[[years[y]]]
+    sim_year_obs = simulated_obs[[years[y]]]
     rownames(sim_year_obs) = ages
     this_sim_data = melt(sim_year_obs)
-    colnames(this_sim_data) = c("age", "simulation", "quantile_resid")
+    colnames(this_sim_data) = c("age", "iteration", "simulated_value")
     this_sim_data$year = years[y]
     full_sim_data = rbind(full_sim_data, this_sim_data)
-    DHARMaResAF = createDHARMa(simulatedResponse = sim_year_obs, observedResponse = obs, 
+    DHARMaResAF = createDHARMa(simulatedResponse = sim_year_obs, observedResponse = obs,
                                fittedPredictedResponse = fitted_val, integerResponse = T)
     quantile_resid[y, ] = DHARMaResAF$scaledResiduals
     norm_quantile_resids[y, ] = qnorm(DHARMaResAF$scaledResiduals)
