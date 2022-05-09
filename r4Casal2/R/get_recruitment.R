@@ -44,6 +44,8 @@
                            ycs_values = this_report$ycs_values,
                            recruits = this_report$Recruits,
                            true_ycs = this_report$true_ycs,
+                           r0 = this_report$r0,
+                           b0 = this_report$b0,
                            par_set = 1,
                            label = reports_labels[i])
       complete_df = rbind(complete_df, full_df)
@@ -62,6 +64,8 @@
           ycs_years = this_report[[dash_i]]$ycs_years,
           Recruits = this_report[[dash_i]]$Recruits,
           true_ycs = this_report[[dash_i]]$true_ycs,
+          r0 = this_report[[dash_i]]$r0,
+          b0 = this_report[[dash_i]]$b0,
           par_set = dash_i,
           label = reports_labels[i])
         complete_df = rbind(complete_df, temp_df)
@@ -102,6 +106,7 @@
 "get_BH_recruitment.casal2TAB" = function(model) {
   reports_labels = reformat_default_labels(names(model))
   complete_df = NULL
+  recruit_multi_col_df = recruit_df = NULL
   for(i in 1:length(model)) {
     this_report = model[[i]]
     if(this_report$type != "process") {
@@ -123,7 +128,7 @@
       } else {
         long_format = suppressMessages({melt((this_report$values[,col_ndx]), variable.name = "colname", value.name = "values", factorsAsStrings = T)})
         long_format$colname = as.character(long_format$colname)
-        second_component = Reduce(c, lapply(strsplit(long_format$colname, split = "[", fixed = T), FUN = function(x){x[2]}))
+        second_component = unlist(lapply(strsplit(long_format$colname, split = "[", fixed = T), FUN = function(x){x[2]}))
         second_component = substring(second_component, first = 1, last = nchar(second_component) - 1)
         long_format$years = second_component
         ## drop colname
@@ -139,9 +144,13 @@
     colnames(non_multi_column_df) = non_multi_col_labs
     multi_column_df = as.data.frame(multi_column_df)
     non_multi_column_df = as.data.frame(non_multi_column_df)
+    non_multi_column_df$label = reports_labels[i]
+    multi_column_df$label = reports_labels[i]
 
+    recruit_multi_col_df = rbind(recruit_multi_col_df, multi_column_df)
+    recruit_df = rbind(recruit_df, non_multi_column_df)
   }
-  return(list(multi_column_df = multi_column_df, non_multi_column_df = non_multi_column_df))
+  return(list(multi_column_df = recruit_multi_col_df, non_multi_column_df = recruit_df))
   invisible()
 }
 
