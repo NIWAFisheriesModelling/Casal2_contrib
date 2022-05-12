@@ -14,7 +14,7 @@
 
 read.simulated.data <- function(dir, verbose = FALSE, mean_age = TRUE) {
   ## add to this as the function grows
-  currently_implemented_obs = c("biomass", "abundance", "process_removals_by_length", "proportions_at_length", "process_removals_by_age", "proportions_at_age", "process_proportions_migrating")
+  currently_implemented_obs = c("biomass", "abundance", "process_removals_by_length", "proportions_at_length", "process_removals_by_age", "proportions_at_age", "process_proportions_migrating", "tag_recapture_by_length")
 
   if(verbose)
     cat("enter: read.simulated.data\n")
@@ -51,6 +51,23 @@ read.simulated.data <- function(dir, verbose = FALSE, mean_age = TRUE) {
       if(!this_ob$type$value %in% currently_implemented_obs) {
         cat(paste0("file ", sim_file_names[n],".",extensions[i], " is of type = ", this_ob$type$value, ". Currently only ", paste(currently_implemented_obs, collapse = ", "), " are implemented"))
         break
+      }
+      if(this_ob$type$value %in% c("tag_recapture_by_length")) {
+        ## relative index obs
+        recaptures_table = Reduce(rbind, this_ob$Table$recaptured[this_ob$years$value])
+        scanned_table = Reduce(rbind, this_ob$Table$scanned[this_ob$years$value])
+
+        class(recaptures_table) = "numeric"
+        if(is.null(dim(recaptures_table)))
+          recaptures_table = matrix(recaptures_table, nrow = 1)
+        rownames(recaptures_table) = NULL
+        class(scanned_table) = "numeric"
+        if(is.null(dim(scanned_table)))
+          scanned_table = matrix(scanned_table, nrow = 1)
+        rownames(scanned_table) = NULL
+        colnames(recaptures_table) = colnames(scanned_table) = this_ob$length_bins$value
+        ## number of recaptures
+        sim_obs[n][[1]] = rbind(sim_obs[n][[1]], recaptures_table * scanned_table)
       }
       if(this_ob$type$value %in% c("biomass", "abundance")) {
         ## relative index obs

@@ -5,16 +5,24 @@
 \title{plot_abundance_predictive_dist
 Plots a violin plot of the predictive distribution by year for an observation}
 \usage{
-plot_abundance_predictive_dist(sim_data, obs, lab, plot_type = "violin")
+plot_abundance_predictive_dist(
+  sim_data,
+  obs,
+  lab,
+  plot_type = "violin",
+  probs = NULL
+)
 }
 \arguments{
 \item{sim_data}{matrix of simulated data rows = year, col = simulations. This function assumes rownames(sim_data) = year}
 
-\item{obs}{a data frame with columns obs and year}
+\item{obs}{a data frame with columns obs and year. Can include a column labelled 'mpd_fit' if it exists the plot will add mpd fits on the plot}
 
 \item{lab}{a label for the plot which clearly identifies the observation}
 
 \item{plot_type}{= "violin" currently either violin or boxplot.}
+
+\item{probs}{vector of proportions that you want the violin plot to add lines at (optional)}
 }
 \value{
 a ggplot

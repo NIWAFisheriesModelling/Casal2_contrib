@@ -116,8 +116,9 @@
     third_component = substring(third_component, first = 1, last = nchar(third_component) - 1)
     newcolab = paste(second_component, third_component,first_component, sep = "-")
     colnames(this_report$values) = newcolab
-
-    long_format = suppressMessages({melt((this_report$values), variable.name = "colname", value.name = "values", factorsAsStrings = T)})
+    cat("getting values for ", reports_labels[i], "\n")
+    long_format = suppressMessages({melt(as.matrix(this_report$values), variable.name = "colname", value.name = "values", factorsAsStrings = T)})
+    colnames(long_format) = c("iteration", "colname", "values")
     long_format$label = reports_labels[i]
     long_format$colname = as.character(long_format$colname)
     split_cols = strsplit(long_format$colname, split = "-", fixed = T)

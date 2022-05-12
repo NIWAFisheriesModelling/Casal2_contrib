@@ -104,6 +104,8 @@
 
 #' @export
 "get_BH_recruitment.casal2TAB" = function(model) {
+  cat("this can take a few minutes for large models and big mcmc chains. Please be patient :~) \n")
+
   reports_labels = reformat_default_labels(names(model))
   complete_df = NULL
   recruit_multi_col_df = recruit_df = NULL
@@ -119,20 +121,30 @@
     first_component = Reduce(c, lapply(strsplit(collabs, split = "[", fixed = T), FUN = function(x){x[1]}))
     components = unique(first_component)
     multi_column_df = non_multi_column_df = NULL
-    non_multi_col_labs = multi_col_labs = NULL
+    non_multi_col_labs = multi_col_labs = "iteration"
+    non_multi_column_df = cbind(non_multi_column_df)
+    multi_column_df = cbind(multi_column_df)
     for(j in 1:length(components)) {
       col_ndx = grepl(collabs, pattern = components[j])
       if(sum(col_ndx, na.rm = T) == 1) {
+        if(is.null(non_multi_column_df)) {
+          non_multi_column_df = cbind(as.numeric(rownames(this_report$values)))
+        }
         non_multi_column_df = cbind(non_multi_column_df, as.numeric(this_report$values[,col_ndx]))
         non_multi_col_labs = c(non_multi_col_labs, components[j])
       } else {
-        long_format = suppressMessages({melt((this_report$values[,col_ndx]), variable.name = "colname", value.name = "values", factorsAsStrings = T)})
+        long_format = suppressMessages({melt(as.matrix(this_report$values[,col_ndx]), variable.name = "colname", value.name = "values", factorsAsStrings = T)})
+        colnames(long_format) =  c("iteration", "colname", "values")
         long_format$colname = as.character(long_format$colname)
         second_component = unlist(lapply(strsplit(long_format$colname, split = "[", fixed = T), FUN = function(x){x[2]}))
         second_component = substring(second_component, first = 1, last = nchar(second_component) - 1)
         long_format$years = second_component
         ## drop colname
-        long_format = long_format[, -which(colnames(long_format) == "colname")]
+        if(is.null(multi_column_df)) {
+          long_format = long_format[, -which(colnames(long_format) %in% c("colname"))]
+        } else {
+          long_format = long_format[, -which(colnames(long_format) %in% c("colname", "iteration"))]
+        }
         multi_col_labs = c(multi_col_labs, components[j], paste0(components[j],"_year"))
         temp_mat = as.matrix(long_format)
         class(temp_mat) = "as.numeric"
