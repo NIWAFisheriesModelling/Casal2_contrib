@@ -1,7 +1,7 @@
 #' plot_tag_recapture_predictive_dist
 #' Plots a violin plot of the predictive distribution by year for an observation
 #'
-#' @param sim_data matrix of simulated data rows = simulation, col = length or age 
+#' @param sim_data matrix of simulated data rows = simulation, col = length or age
 #' @param obs a data frame with column names obs and bin (). Can include a column labelled 'mpd_fit' if it exists the plot will add mpd fits on the plot
 #' @param lab a label for the plot which clearly identifies the observation
 #' @param plot_type = "violin" currently either violin or boxplot.
@@ -27,10 +27,10 @@ plot_tag_recapture_predictive_dist <- function(sim_data, obs, lab, plot_type = "
   add_mpd_fit = FALSE
   if(c("mpd_fit") %in% colnames(obs))
     add_mpd_fit = TRUE;
-  
+
   colnames(sim_data_long) = c("sim", type, "recaptures")
   sim_data_long[,2] =factor(sim_data_long[,2], ordered = T)
-  
+
   base_plot = ggplot(sim_data_long, aes_string(x = type)) + ggtitle(lab) +
     scale_color_manual(values = legend) +
     guides(fill = "none") +
@@ -38,9 +38,9 @@ plot_tag_recapture_predictive_dist <- function(sim_data, obs, lab, plot_type = "
     scale_x_discrete(drop=FALSE)
   if(plot_type == "violin") {
     if(is.null(probs)) {
-      base_plot = base_plot + geom_violin(aes(y = recaptures, color = "Posterior Prediction", fill = "Posterior Prediction"))
+      base_plot = base_plot + geom_violin(aes(y = recaptures, color = "Posterior Prediction", fill = "Posterior Prediction"),adjust=2)
     } else {
-      base_plot = base_plot + geom_violin(aes(y = recaptures, color = "Posterior Prediction", fill = "Posterior Prediction"), draw_quantiles = probs)
+      base_plot = base_plot + geom_violin(aes(y = recaptures, color = "Posterior Prediction", fill = "Posterior Prediction"),adjust=2, draw_quantiles = probs)
     }
   } else {
     base_plot = base_plot + geom_boxplot(aes(color = "Posterior Prediction", fill = "Posterior Prediction"))
