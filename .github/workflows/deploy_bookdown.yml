@@ -27,6 +27,7 @@ jobs:
             any::rmarkdown
             any::bookdown
           working-directory: r4Casal2
+      - name: Install Casal2
 
       - name: Render Book
         run: Rscript -e 'bookdown::render_book(input = "GitBook")'
