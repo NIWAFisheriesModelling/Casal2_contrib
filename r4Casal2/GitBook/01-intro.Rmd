@@ -12,5 +12,6 @@ Chapters and sections are numbered by default. To un-number a heading, add a `{.
 
 ```{r install_packages}
 library(r4Casal2)
+library(Casal2)
 
 ```

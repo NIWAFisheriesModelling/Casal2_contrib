@@ -27,7 +27,7 @@ jobs:
             any::bookdown
           working-directory: r4Casal2
       - name: Install Casal2
-        run: Rscript -e "devtools::install_github("NIWAFisheriesModelling/CASAL2", subdir="R-libraries/casal2", ref = "HEAD")"
+        run: Rscript -e 'devtools::install_github("NIWAFisheriesModelling/CASAL2", subdir="R-libraries/casal2", ref = "HEAD")'
 
       - name: Render Book
         run: Rscript -e 'bookdown::render_book(input = "GitBook")'
