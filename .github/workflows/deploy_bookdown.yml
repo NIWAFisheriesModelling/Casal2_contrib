@@ -20,12 +20,13 @@ jobs:
       - uses: r-lib/actions/setup-pandoc@v2
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          dependencies: hard
+          dependencies: "hard"
           extra-packages: |
             any::ggplot2
             any::dplyr
             any::tidyr
             any::rmarkdown
+            any::knitr
             any::bookdown
           working-directory: r4Casal2
       - name: Install Casal2
