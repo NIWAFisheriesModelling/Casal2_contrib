@@ -1,3 +1,5 @@
+# This repo has been archived [click here for r4Casal2](https://github.com/NIWAFisheriesModelling/r4Casal2)
+
 # Casal2_contrib
 R packages and auxiliary material that assist with interacting and applying [Casal2](https://github.com/NIWAFisheriesModelling/CASAL2) software
 
